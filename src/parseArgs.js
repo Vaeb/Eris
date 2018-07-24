@@ -161,7 +161,7 @@ const parseCommandArgs = (command, usedArgs, { guild, channel } = {}) => {
                     channel,
                 };
 
-                builtArgs = params.map(({ id, defaultResolve }) => {
+                builtArgs = params.map(({ id, defaultResolve, parse }) => {
                     const newArg = { ...params[id] };
 
                     const index = paramIds.indexOf(id);
@@ -172,9 +172,9 @@ const parseCommandArgs = (command, usedArgs, { guild, channel } = {}) => {
                     } else if (defaultResolve) {
                         // Resolve default value
                         if (typeof defaultResolve === 'function') {
-                            newArg.value = defaultResolve(builtArgsBasic);
+                            newArg.value = defaultResolve({ ...builtArgsBasic, parse });
                         } else {
-                            newArg.value = defaultResolve;
+                            newArg.value = parse({ str: defaultResolve, guild, channel });
                         }
                     }
 

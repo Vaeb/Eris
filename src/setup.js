@@ -20,6 +20,10 @@ const defaultPermissions = () => true;
 glob.sync('./src/modules/**/*.js').forEach((file) => {
     const filePath = path.resolve(file);
     const command = require(filePath).default;
+    if (!command) {
+        console.log('Command data not found:', file);
+        return;
+    }
     command.name = command.cmds[0];
     if (!command.checkPermissions) command.checkPermissions = defaultPermissions;
     command.params.forEach((paramData, index) => {

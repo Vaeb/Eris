@@ -15,6 +15,8 @@ export const client = new Client({
 export const commands = [];
 
 const defaultParse = ({ str }) => str;
+// const defaultParseFail = () => 'Incorrect value';
+const defaultParseFail = ({ str, param: { name } }) => `"${str}" does not include a valid ${name}`;
 const defaultPermissions = () => true;
 
 glob.sync('./src/modules/**/*.js').forEach((file) => {
@@ -33,6 +35,7 @@ glob.sync('./src/modules/**/*.js').forEach((file) => {
         if (!paramData.types) paramData.types = [];
         if (!paramData.examples) paramData.examples = [];
         if (!paramData.parse) paramData.parse = defaultParse;
+        if (!paramData.parseFail) paramData.parseFail = defaultParseFail;
     });
     command.paramCombos = parseParamCombos(command.params);
     command.minArgs = command.paramCombos.reduce((nowNum, params) => Math.min(nowNum, params.length), Infinity);

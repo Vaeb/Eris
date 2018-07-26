@@ -1,7 +1,7 @@
 import { RichEmbed } from 'discord.js';
-import { colors, defInline, vaebId } from './setup';
+import { colors, defInline, vaebId, noChar } from './setup';
 
-String.prototype.toTitleCase = function () {
+String.prototype.toTitleCase = function toTitleCaseFunc() {
     return this.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
 };
 
@@ -36,6 +36,8 @@ export const sendEmbed = (channel, {
 
         if (typeof field === 'string') field = { name: '​', value: field, inline: defInline };
 
+        if (field.value == null) field.value = noChar;
+
         embed.addField(field.name, field.value, field.inline == null ? defInline : field.inline);
     }
 
@@ -67,7 +69,9 @@ export const cloneDeepJson = obj => JSON.parse(JSON.stringify(obj));
 
 export const cloneDeepArray = arr => arr.map(val => (isArray(val) ? cloneDeepArray(val) : val));
 
-export const matchWholeNumber = str => (str.match(/^\d*(?:\.\d+)?$/) || [])[0];
+export const matchWholeNumberRegex = /^\d*(?:\.\d+)?$/;
+
+export const matchWholeNumber = str => (str.match(matchWholeNumberRegex) || [])[0];
 
 export const getBaseMuteTime = member => String(member).length;
 

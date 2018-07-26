@@ -68,8 +68,9 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
 
     if (failErr) {
         sendEmbed(channel, {
-            title: 'Command Failed',
-            desc: [failErr, `Use "${prefix}syntax ${commandName}" for more information`].join('\n'),
+            title: `${commandName} Failed`,
+            desc: failErr,
+            footer: `Use "${prefix}syntax ${commandName}" for more information`,
         });
 
         // sendEmbed(channel, {
@@ -140,22 +141,25 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
                         // console.log('---');
                         // console.log(paramIds, '|', nowArgs, '|', numParams);
                         const { splitArgs } = splitData;
-                        const numNewArgs = splitArgs.length - 1;
-                        argValue = splitArgs[0];
-                        nowArgs[j] = argValue;
-                        numParams += numNewArgs;
-                        nowArgs.splice(j + 1, 0, ...splitArgs.slice(1));
-                        const newParamIds = [];
-                        for (let k = j + 1; k <= j + numNewArgs; k++) {
-                            if (k < paramIds.length) paramIds[k]++;
-                            newParamIds.push(k);
+                        console.log('SPLIT ARGS', argValue, '|', nowArgs, '|', splitArgs);
+                        if (!splitArgs.some(str => str.trim() === '')) {
+                            const numNewArgs = splitArgs.length - 1;
+                            argValue = splitArgs[0];
+                            nowArgs[j] = argValue;
+                            numParams += numNewArgs;
+                            nowArgs.splice(j + 1, 0, ...splitArgs.slice(1));
+                            const newParamIds = [];
+                            for (let k = j + 1; k <= j + numNewArgs; k++) {
+                                if (k < paramIds.length) paramIds[k]++;
+                                newParamIds.push(k);
+                            }
+                            paramIds.splice(j + 1, 0, ...newParamIds);
+                            // console.log(paramIds, '|', nowArgs, '|', numParams);
+                            /*
+                                we know that if arguments are overflowing from current parameter, they **must** be for
+                                the directly adjacent next parameter(s), so need to insert the missing parameter(s)
+                            */
                         }
-                        paramIds.splice(j + 1, 0, ...newParamIds);
-                        // console.log(paramIds, '|', nowArgs, '|', numParams);
-                        /*
-                            we know that if arguments are overflowing from current parameter, they **must** be for
-                            the directly adjacent next parameter(s), so need to insert the missing parameter(s)
-                        */
                     }
                 }
 
@@ -205,10 +209,10 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
                 });
                 return true;
             } else if (numPassNow > best.numPass) {
-                best = [{ args: nowArgs, params: paramIds.map(pId => params[pId].name), failArg: numPassNow }];
+                best = [{ args: nowArgs, paramIds, failArg: nowArgs[numPassNow], failParam: paramIds[paramIds.length - 1] }];
                 best.numPass = numPassNow;
-            } else if (numPassNow === best.numPass) {
-                best.push({ args: nowArgs, params: paramIds.map(pId => params[pId].name), failArg: numPassNow });
+            } else if (numPassNow === best.numPass && (!best.length || paramIds.length <= best[0].paramIds.length)) {
+                best.push({ args: nowArgs, paramIds, failArg: nowArgs[numPassNow], failParam: paramIds[paramIds.length - 1] });
             }
 
             if (thrown) return;
@@ -223,16 +227,21 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
 
     console.log('GOT BEST:', best);
 
-    const usageFelds = best.map(({ args, params, failArgs }) => ({ name: params[params.length - 1], value: 'Incorrect value' }));
-    usageFelds.push(`Use "${prefix}syntax ${commandName}" for more information`);
+    const usageFelds = best.map(({ failArg, failParam }) => ({
+        name: `> ${params[failParam].name}`,
+        value: params[failParam].parseFail({ str: failArg, param: params[failParam] }),
+        inline: false,
+    }));
+    // usageFelds.push({ name: `Use "${prefix}syntax ${commandName}" for more information` });
 
     sendEmbed(channel, {
         // title: 'Command usage error',
         title: `${commandName.toTitleCase()} Failed`,
-        desc: `Your ${best[0].args[best[0].failArg]} argument did not match a ${best
-            .map(({ params }) => params[params.length - 1])
+        desc: `Your "${best[0].failArg}" argument(s) did not match type${best.length > 1 ? 's' : ''} ${best
+            .map(({ failParam }) => `**${params[failParam].name}**`)
             .join(' or ')}`,
         fields: usageFelds,
+        footer: `Use "${prefix}syntax ${commandName}" for more information`,
     });
 
     // print(

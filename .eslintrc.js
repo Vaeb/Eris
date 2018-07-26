@@ -18,6 +18,7 @@ module.exports = {
         'no-continue': 'off',
         'no-control-regex': 'off',
         'no-eval': 'off',
+        'no-extend-native': 'off',
         // "no-irregular-whitespace": "off",
         // "no-lonely-if": "off",
         'no-mixed-operators': 'off',

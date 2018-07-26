@@ -20,6 +20,7 @@ export default {
             ],
             // parse: userResolvable.parse,
             parse: ({ str, guild }) => getFullName(getMemberByMixed(str, guild)) || isId(str) || undefined,
+            parseFail: ({ str }) => `"${str}" does not include a resolvable user value in this server`,
         },
         {
             name: 'Time',
@@ -28,11 +29,12 @@ export default {
             examples: [['5', '2', '17'], ['5d', '2h', '17m', '10s']],
             optional: true,
             overflowArgs: ({ str }) => {
-                const { index } = str.match(/[a-zA-Z]+$/) || {};
+                const { index } = str.match(/^\d*(?:\.\d+)?[a-zA-Z]+$/) || {};
                 if (index) return { type: 1, splitArgs: [str.substring(0, index), str.substring(index)] };
                 return undefined;
             },
             parse: ({ str }) => matchWholeNumber(str),
+            parseFail: ({ str }) => `"${str}" does not include a whole number`,
             defaultResolve: ({ args }) => getBaseMuteTime(args[0].value),
         },
         {
@@ -43,6 +45,7 @@ export default {
             requires: [1],
             optional: true,
             parse: timeFormat.parse,
+            parseFail: ({ str }) => `"${str}" does not include a valid time format`,
             defaultResolve: 'minutes',
         },
         {
@@ -51,7 +54,7 @@ export default {
             types: ['Text'],
             examples: [['Continuing to spam after being warned', 'Profanity towards other users after being asked to stop']],
             optional: true,
-            parse: ({ str }) => matchWholeNumber(str),
+            // parse: ({ str }) => matchWholeNumber(str),
             defaultResolve: 'Reason not provided',
         },
     ],

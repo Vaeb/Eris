@@ -90,6 +90,26 @@
 //     return sortParamCombos(paramCombos);
 // };
 
+/*
+
+    User
+    User Time
+    User Time TF
+    User Time TF Reason
+    User Time Reason
+    User TF
+    User TF Reason
+    User Reason 
+    Time
+    Time TF
+    Time TF Reason
+    Time Reason 
+    TF
+    TF Reason
+    Reason
+
+*/
+
 const parseParamCombos = (allParams) => {
     if (allParams.length === 0) return [];
 

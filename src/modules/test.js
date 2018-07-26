@@ -1,5 +1,3 @@
-import nodeUtil from 'util';
-
 import { requiresDev } from '../permissions';
 import { print, getMemberByMixed, isId, matchWholeNumber, getBaseMuteTime, getFullName } from '../util';
 import { userResolvable, timeFormat } from '../paramTypes';
@@ -53,6 +51,7 @@ export default {
             types: ['Text'],
             examples: ['Continuing to spam after being warned', 'Profanity towards other users after being asked to stop'],
             optional: true,
+            parse: ({ str }) => matchWholeNumber(str),
             defaultResolve: 'Reason not provided',
         },
     ],

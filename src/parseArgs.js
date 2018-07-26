@@ -14,10 +14,14 @@ const parseArgCombosInner = (args, numParams) => {
 
     const argCombos = [nowGroups.map(arr => arr.join(' '))];
 
+    if (args.length === numParams) return argCombos;
+
     let focus = 0;
     const endFocus = numParams - 1;
 
     const savePointsStack = [];
+
+    console.log(nowGroups);
 
     while (focus !== endFocus || savePointsStack.length > 0) {
         if (focus === endFocus) {
@@ -31,6 +35,8 @@ const parseArgCombosInner = (args, numParams) => {
             focus++; // Next focus
         }
     }
+
+    console.log('parseArgCombos', numParams, args, ':', argCombos);
 
     return argCombos;
 };
@@ -81,11 +87,15 @@ const parseCommandArgs = (command, usedArgs, { guild, channel } = {}) => {
 
     console.log('++', argComboVariations);
 
+    let best = [];
+    best.numPass = -1;
+
     const foundBuiltArgs = paramCombos.some((paramIdsOrig) => {
         // A combination of params (ids)
 
         // if (numUsedArgs < numParams) return false;
 
+        let thrown = false;
         const argCombos = argComboVariations[paramIdsOrig.length]; // Combinations of arguments
 
         if (!argCombos) return false;
@@ -100,14 +110,21 @@ const parseCommandArgs = (command, usedArgs, { guild, channel } = {}) => {
             const nowArgsParsed = [];
 
             let passed = true;
+            let numPassNow = 0;
 
             // console.log('> Next combo of arguments...');
 
             for (let j = 0; j < numParams; j++) {
+                numPassNow = j;
+
                 const paramData = params[paramIds[j]]; // A param (data)
                 const { parse, overflowArgs } = paramData;
 
-                if (j >= nowArgs.length) return false;
+                if (j >= nowArgs.length) {
+                    passed = false;
+                    thrown = true;
+                    break;
+                }
 
                 let argValue = nowArgs[j];
 
@@ -181,7 +198,14 @@ const parseCommandArgs = (command, usedArgs, { guild, channel } = {}) => {
                     return newArg;
                 });
                 return true;
+            } else if (numPassNow > best.numPass) {
+                best = [{ args: nowArgs, params: paramIds.map(pId => params[pId].name), failArg: numPassNow }];
+                best.numPass = numPassNow;
+            } else if (numPassNow === best.numPass) {
+                best.push({ args: nowArgs, params: paramIds.map(pId => params[pId].name), failArg: numPassNow });
             }
+
+            if (thrown) return;
         }
 
         return false;
@@ -191,13 +215,18 @@ const parseCommandArgs = (command, usedArgs, { guild, channel } = {}) => {
 
     if (foundBuiltArgs) return builtArgs;
 
+    console.log('GOT BEST:', best);
+
+    const usageFelds = best.map(({ args, params, failArgs }) => ({ name: params[params.length - 1], value: 'Incorrect value' }));
+    usageFelds.push(`Use "${prefix}syntax ${commandName}" for more information`);
+
     sendEmbed(channel, {
-        title: 'Command usage error',
-        // desc: '',
-        fields: [
-            `Command arguments did not match the required parameters for "${commandName}" `,
-            `Use "${prefix}syntax ${commandName}" for more information`,
-        ],
+        // title: 'Command usage error',
+        title: `${commandName.toTitleCase()} Failed`,
+        desc: `Your ${best[0].args[best[0].failArg]} argument did not match a ${best
+            .map(({ params }) => params[params.length - 1])
+            .join(' or ')}`,
+        fields: usageFelds,
     });
 
     return false;

@@ -54,7 +54,7 @@ export default {
             types: ['Text'],
             examples: [['Continuing to spam after being warned', 'Profanity towards other users after being asked to stop']],
             optional: true,
-            parse: ({ str }) => matchWholeNumber(str),
+            // parse: ({ str }) => matchWholeNumber(str),
             defaultResolve: 'Reason not provided',
         },
     ],

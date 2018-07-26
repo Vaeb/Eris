@@ -237,7 +237,7 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
     sendEmbed(channel, {
         // title: 'Command usage error',
         title: `${commandName.toTitleCase()} Failed`,
-        desc: `Your "${best[0].failArg}" argument(s) did not match type${best.length > 1 ? 's' : ''} ${best
+        desc: `Your "${best[0].failArg}" argument(s) did not begin with type${best.length > 1 ? 's' : ''} ${best
             .map(({ failParam }) => `**${params[failParam].name}**`)
             .join(' or ')}`,
         fields: usageFelds,

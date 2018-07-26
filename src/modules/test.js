@@ -4,7 +4,7 @@ import { userResolvable, timeFormat } from '../paramTypes';
 
 export default {
     cmds: ['mute'],
-    desc: 'Mute a user preventing them from sending messages for a period of time',
+    desc: 'Mute a user to prevent them from sending messages for a period of time',
     params: [
         {
             name: 'User',
@@ -49,7 +49,7 @@ export default {
             name: 'Reason',
             desc: 'Reason for the mute',
             types: ['Text'],
-            examples: ['Continuing to spam after being warned', 'Profanity towards other users after being asked to stop'],
+            examples: [['Continuing to spam after being warned', 'Profanity towards other users after being asked to stop']],
             optional: true,
             parse: ({ str }) => matchWholeNumber(str),
             defaultResolve: 'Reason not provided',

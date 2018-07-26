@@ -1,6 +1,10 @@
 import { RichEmbed } from 'discord.js';
 import { colors, defInline, vaebId } from './setup';
 
+String.prototype.toTitleCase = function () {
+    return this.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+};
+
 export const print = (channel, ...args) => channel.send(args.join(' '), { split: true });
 
 export const printLog = (channel, ...args) => {

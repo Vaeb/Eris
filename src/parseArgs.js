@@ -1,5 +1,5 @@
 import { prefix } from './setup';
-import { sendEmbed, cloneDeepArray } from './util';
+import { print, sendEmbed, cloneDeepArray } from './util';
 
 const parseArgCombosInner = (args, numParams) => {
     if (args.length < numParams) return null;
@@ -47,15 +47,14 @@ const parseArgCombos = (args, paramCombos) =>
         return o;
     }, {});
 
-const parseCommandArgs = (command, usedArgs, { guild, channel } = {}) => {
-    if (usedArgs.length === 0) return [];
-
-    usedArgs = usedArgs.split(/\s/);
+const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
+    const usedArgs = strArgs.split(/\s/);
 
     const { params, paramCombos, minArgs } = command;
     const commandName = command.cmds[0];
+    const commandFormat = command.noPrefix ? commandName : prefix + commandName;
 
-    const numUsedArgs = usedArgs.length;
+    const numUsedArgs = strArgs.length === 0 ? 0 : usedArgs.length;
 
     let failErr;
 
@@ -64,14 +63,21 @@ const parseCommandArgs = (command, usedArgs, { guild, channel } = {}) => {
         failErr = `Command "${commandName}" should not have any arguments`;
     } else if (numUsedArgs < minArgs) {
         // Fail: Too little arguments
-        failErr = `Too little arguments for command "${commandName}"`;
+        failErr = `Command "${commandName}" needs more arguments`;
     }
 
     if (failErr) {
         sendEmbed(channel, {
-            title: 'Command usage error',
-            fields: [failErr, `Use "${prefix}syntax ${commandName}" for more information`],
+            title: 'Command Failed',
+            desc: [failErr, `Use "${prefix}syntax ${commandName}" for more information`].join('\n'),
         });
+
+        // sendEmbed(channel, {
+        //     title: 'Command usage error',
+        //     fields: [failErr, `Use "${prefix}syntax ${commandName}" for more information`],
+        // });
+
+        // print(channel, `**[ Command Usage Error ]** ${failErr} | Use "${prefix}syntax ${commandName}" for more information`);
 
         return false;
     }
@@ -85,7 +91,7 @@ const parseCommandArgs = (command, usedArgs, { guild, channel } = {}) => {
 
     let builtArgs; // Found arguments that fit params
 
-    console.log('++', argComboVariations);
+    // console.log('++', argComboVariations);
 
     let best = [];
     best.numPass = -1;
@@ -170,7 +176,7 @@ const parseCommandArgs = (command, usedArgs, { guild, channel } = {}) => {
                 // console.log('Parsed values:', nowArgsParsed);
                 // builtArgs = paramIds.map((id, index) => ({ ...params[id], value: nowArgsParsed[index], original: nowArgs[index] }));
                 // eslint-disable-next-line no-loop-func
-                console.log('gg', numParams, nowArgs, '|', nowArgsParsed);
+                // console.log('gg', numParams, nowArgs, '|', nowArgsParsed);
 
                 const builtArgsBasic = {
                     args: paramIds.map((id, index) => ({ value: nowArgsParsed[index], original: nowArgs[index] })),
@@ -228,6 +234,20 @@ const parseCommandArgs = (command, usedArgs, { guild, channel } = {}) => {
             .join(' or ')}`,
         fields: usageFelds,
     });
+
+    // print(
+    //     channel,
+    //     `**[ Command Usage Error ]** Your arguments did not match the required parameters for ${commandName} | Use "${prefix}syntax ${commandName}" for more information`,
+    // );
+
+    // sendEmbed(channel, {
+    //     title: 'Command usage error',
+    //     // desc: '',
+    //     fields: [
+    //         `Command arguments did not match the required parameters for "${commandName}" `,
+    //         `Use "${prefix}syntax ${commandName}" for more information`,
+    //     ],
+    // });
 
     return false;
 };

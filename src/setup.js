@@ -25,9 +25,13 @@ glob.sync('./src/modules/**/*.js').forEach((file) => {
         return;
     }
     command.name = command.cmds[0];
+    if (!command.desc) command.desc = 'Command description not provided';
     if (!command.checkPermissions) command.checkPermissions = defaultPermissions;
     command.params.forEach((paramData, index) => {
         paramData.id = index;
+        if (!paramData.desc) paramData.desc = 'Parameter description not provided';
+        if (!paramData.types) paramData.types = [];
+        if (!paramData.examples) paramData.examples = [];
         if (!paramData.parse) paramData.parse = defaultParse;
     });
     command.paramCombos = parseParamCombos(command.params);

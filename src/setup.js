@@ -38,7 +38,9 @@ glob.sync('./src/modules/**/*.js').forEach((file) => {
         if (!paramData.parseFail) paramData.parseFail = defaultParseFail;
     });
     command.paramCombos = parseParamCombos(command.params);
-    command.minArgs = command.paramCombos.reduce((nowNum, params) => Math.min(nowNum, params.length), Infinity);
+    command.minArgs = command.paramCombos.length
+        ? command.paramCombos.reduce((nowNum, params) => Math.min(nowNum, params.length), Infinity)
+        : 0;
     console.log(`Built command: ${command.name}`);
     commands.push(command);
 });

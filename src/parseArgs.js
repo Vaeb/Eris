@@ -56,6 +56,8 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
 
     const numUsedArgs = strArgs.length === 0 ? 0 : usedArgs.length;
 
+    const maxParamId = params.reduce((maxId, { id }) => Math.max(maxId, id), -1);
+
     let failErr;
 
     if (numUsedArgs > 0 && (!paramCombos || paramCombos.length === 0)) {
@@ -66,9 +68,11 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
         failErr = `Command "${commandName}" needs more arguments`;
     }
 
+    console.log(numUsedArgs, minArgs);
+
     if (failErr) {
         sendEmbed(channel, {
-            title: `${commandName} Failed`,
+            title: `${commandName.toTitleCase()} Failed`,
             desc: failErr,
             footer: `Use "${prefix}syntax ${commandName}" for more information`,
         });
@@ -122,19 +126,21 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
             let failArg;
             let failParam;
 
-            // console.log('> Next combo of arguments...');
+            console.log('> Next combo of arguments...');
 
             // Each param/argument
             for (let j = 0; j < numParams; j++) {
-                const paramId = paramIds[j];
-                const paramData = params[paramId]; // A param (data)
-                const { parse, overflowArgs } = paramData;
-
                 if (j >= nowArgs.length) {
                     passed = false;
                     thrown = true;
                     break;
                 }
+
+                console.log(j, nowArgs, paramIds);
+
+                const paramId = paramIds[j];
+                const paramData = params[paramId]; // A param (data)
+                const { parse, overflowArgs } = paramData;
 
                 let argValue = nowArgs[j];
 
@@ -151,12 +157,20 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
                             nowArgs[j] = argValue;
                             numParams += numNewArgs;
                             nowArgs.splice(j + 1, 0, ...splitArgs.slice(1));
+
                             const newParamIds = [];
+
                             for (let k = j + 1; k <= j + numNewArgs; k++) {
                                 if (k < paramIds.length) paramIds[k]++;
                                 newParamIds.push(k);
                             }
                             paramIds.splice(j + 1, 0, ...newParamIds);
+
+                            if (paramIds[paramIds.length - 1] > maxParamId) {
+                                passed = false;
+                                break;
+                            }
+
                             // console.log(paramIds, '|', nowArgs, '|', numParams);
                             /*
                                 we know that if arguments are overflowing from current parameter, they **must** be for
@@ -222,7 +236,8 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
             } else if (numPassNow === best.numPass && (!best.length || paramIds.length <= best[0].paramIds.length)) {
                 const existingIndex = best.findIndex(({ failParam: failParamExisting }) => failParamExisting === failParam);
                 if (existingIndex > -1) {
-                    // const existingData = best[existingIndex];
+                    const existingData = best[existingIndex];
+                    console.log('COULD SWAP BEST:', 'REMOVED:', existingData, 'ADDED:', best[best.length - 1]);
                     // if (failArg.length < existingData.failArg.length) {
                     //     best.splice(existingIndex, 1);
                     //     best.push({ args: nowArgs, paramIds, failArg, failParam });

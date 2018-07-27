@@ -2,8 +2,17 @@ import { commands, prefix } from '../setup';
 import { sendEmbed } from '../util';
 import parseCommandArgs from '../parseArgs';
 
+function getValuesFromObj(obj, ...props) {
+    const newObj = {};
+    props.forEach((prop) => {
+        newObj[prop] = obj[prop];
+    });
+    return newObj;
+}
+
 export const newMessage = (msgObj) => {
-    const { channel, member, content } = msgObj;
+    const msgObjValues = getValuesFromObj(msgObj, 'guild', 'channel', 'member', 'author', 'content');
+    const { channel, member, content } = msgObjValues;
 
     const contentLower = content.toLowerCase();
 
@@ -36,7 +45,11 @@ export const newMessage = (msgObj) => {
 
     if (parsedArgs === false) return;
 
-    command.func({ ...msgObj, command, args: parsedArgs });
+    command.func({
+        ...msgObjValues,
+        command,
+        args: parsedArgs,
+    });
 };
 
 console.log('Ran messageHandler module');

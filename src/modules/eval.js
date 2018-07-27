@@ -18,7 +18,7 @@ export default {
     checkPermissions: requiresDev,
 
     func: async ({
-        guild, channel, speaker, command, args,
+        guild, channel, member, command, args,
     }) => {
         const code = `(async () => {\n${args[0].value}\n})()`;
 

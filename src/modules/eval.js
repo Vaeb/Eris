@@ -17,7 +17,9 @@ export default {
 
     checkPermissions: requiresDev,
 
-    func: async ({ channel, args }) => {
+    func: async ({
+        guild, channel, speaker, command, args,
+    }) => {
         const code = `(async () => {\n${args[0].value}\n})()`;
 
         try {
@@ -33,6 +35,11 @@ export default {
             }
         } catch (err) {
             console.log('Eval Error:', err);
+            const outStr = ['**Error:**'];
+            outStr.push('```');
+            outStr.push(nodeUtil.format(err));
+            outStr.push('```');
+            print(channel, outStr.join('\n'));
         }
     },
 };

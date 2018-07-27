@@ -36,7 +36,7 @@ export const newMessage = (msgObj) => {
 
     if (parsedArgs === false) return;
 
-    command.func({ ...msgObj, args: parsedArgs });
+    command.func({ ...msgObj, command, args: parsedArgs });
 };
 
 console.log('Ran messageHandler module');

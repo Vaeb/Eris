@@ -20,7 +20,7 @@ export default {
             ],
             // parse: userResolvable.parse,
             parse: ({ str, guild }) => getFullName(getMemberByMixed(str, guild)) || isId(str) || undefined,
-            parseFail: ({ str }) => `"${str}" does not begin with a resolvable user value in this server`,
+            parseFail: ({ str }) => 'User not found',
         },
         {
             name: 'Time',

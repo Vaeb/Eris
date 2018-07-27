@@ -109,6 +109,7 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
 
         const numArgCombos = argCombos.length;
 
+        // Each combination of arguments
         for (let i = 0; i < numArgCombos; i++) {
             const paramIds = paramIdsOrig.slice(0);
             let numParams = paramIds.length;
@@ -118,13 +119,15 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
 
             let passed = true;
             let numPassNow = 0;
+            let failArg;
+            let failParam;
 
             // console.log('> Next combo of arguments...');
 
+            // Each param/argument
             for (let j = 0; j < numParams; j++) {
-                numPassNow = j;
-
-                const paramData = params[paramIds[j]]; // A param (data)
+                const paramId = paramIds[j];
+                const paramData = params[paramId]; // A param (data)
                 const { parse, overflowArgs } = paramData;
 
                 if (j >= nowArgs.length) {
@@ -169,10 +172,15 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
 
                 if (parsedValue === undefined) {
                     passed = false;
-                    break;
+                    if (failArg === undefined) {
+                        failArg = argValue;
+                        failParam = paramId;
+                    }
+                    // break;
+                } else {
+                    numPassNow++;
+                    nowArgsParsed.push(parsedValue);
                 }
-
-                nowArgsParsed.push(parsedValue);
             }
 
             if (passed) {
@@ -209,13 +217,23 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
                 });
                 return true;
             } else if (numPassNow > best.numPass) {
-                best = [{ args: nowArgs, paramIds, failArg: nowArgs[numPassNow], failParam: paramIds[paramIds.length - 1] }];
+                best = [{ args: nowArgs, paramIds, failArg, failParam }];
                 best.numPass = numPassNow;
             } else if (numPassNow === best.numPass && (!best.length || paramIds.length <= best[0].paramIds.length)) {
-                best.push({ args: nowArgs, paramIds, failArg: nowArgs[numPassNow], failParam: paramIds[paramIds.length - 1] });
+                const existingIndex = best.findIndex(({ failParam: failParamExisting }) => failParamExisting === failParam);
+                if (existingIndex > -1) {
+                    // const existingData = best[existingIndex];
+                    // if (failArg.length < existingData.failArg.length) {
+                    //     best.splice(existingIndex, 1);
+                    //     best.push({ args: nowArgs, paramIds, failArg, failParam });
+                    //     console.log('SWAP BEST:', 'REMOVED:', existingData, 'ADDED:', best[best.length - 1]);
+                    // }
+                } else {
+                    best.push({ args: nowArgs, paramIds, failArg, failParam });
+                }
             }
 
-            if (thrown) return;
+            // if (thrown) return;
         }
 
         return false;
@@ -237,7 +255,7 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
     sendEmbed(channel, {
         // title: 'Command usage error',
         title: `${commandName.toTitleCase()} Failed`,
-        desc: `Your "${best[0].failArg}" argument(s) did not begin with type${best.length > 1 ? 's' : ''} ${best
+        desc: `Your "${best[0].failArg}" argument does not match type${best.length > 1 ? 's' : ''} ${best
             .map(({ failParam }) => `**${params[failParam].name}**`)
             .join(' or ')}`,
         fields: usageFelds,

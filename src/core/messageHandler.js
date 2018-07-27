@@ -9,7 +9,7 @@ export const newMessage = (msgObj) => {
 
     let usedCmd;
 
-    const command = commands.find(({ cmds, noPrefix, params }) =>
+    const command = commands.find(({ cmds, noPrefix }) =>
         cmds.some((cmd) => {
             const checkCmd = noPrefix ? cmd : prefix + cmd;
 

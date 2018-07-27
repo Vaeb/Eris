@@ -16,7 +16,7 @@ export const commands = [];
 
 const defaultParse = ({ str }) => str;
 // const defaultParseFail = () => 'Incorrect value';
-const defaultParseFail = ({ str, param: { name } }) => `"${str}" does not begin with a valid ${name}`;
+const defaultParseFail = ({ str, param: { name } }) => `"${str}" is not a valid ${name}`;
 const defaultPermissions = () => true;
 
 glob.sync('./src/modules/**/*.js').forEach((file) => {

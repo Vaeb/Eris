@@ -61,12 +61,12 @@ export default {
 
     // checkPermissions: requiresDev,
 
-    func: ({ channel, args }) => {
+    func: ({ channel, args, argsData }) => {
         // prettier-ignore
-        const argsInfo = args.map(({ name, value, original }) =>
+        const argsInfo = argsData.map(({ name, value, original }) =>
             `Parsed \`${original || 'default'}\` as built-parameter \`${name}\` >>> \`${value}\``);
 
-        argsInfo.push('', `Resolved arguments: ${args.map(({ value }) => `\`${value}\``).join(' ')}`);
+        argsInfo.push('', `Resolved arguments: ${args.map(value => `\`${value}\``).join(' ')}`);
         print(channel, argsInfo.join('\n'));
     },
 };

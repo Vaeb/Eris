@@ -1,7 +1,13 @@
 import nodeUtil from 'util';
 
+import { client } from '../setup';
 import { requiresDev } from '../permissions';
-import { print } from '../util';
+// import { print, sendEmbed, sendEmbedError } from '../util';
+const { print, sendEmbed, sendEmbedError } = require('../util');
+
+/*
+    ==eval const client = require('../setup').client; return client.channels.get('455410709631729665').name;
+*/
 
 export default {
     cmds: ['eval'],
@@ -20,7 +26,7 @@ export default {
     func: async ({
         guild, channel, member, command, args,
     }) => {
-        const code = `(async () => {\n${args[0].value}\n})()`;
+        const code = `(async () => {\n${args[0]}\n})()`;
 
         try {
             const result = await eval(code);

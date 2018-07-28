@@ -24,6 +24,8 @@ export const onError = (err, context = 'Unspecified', noLog) => {
 export const sendEmbed = (channel, {
     title = '', desc = '', footer = '', color = colors.pink, fields = [], image,
 }) => {
+    if (typeof color === 'string') color = colors[color];
+
     const embed = new RichEmbed()
         .setTitle(title)
         .setDescription(desc)
@@ -43,6 +45,13 @@ export const sendEmbed = (channel, {
 
     channel.send(embed);
 };
+
+export const sendEmbedError = (channel, desc) =>
+    sendEmbed(channel, {
+        title: 'Command Error',
+        desc,
+        color: colors.red,
+    });
 
 export const globalRegex = (str, rgx) => {
     const out = [];

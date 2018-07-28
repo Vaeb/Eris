@@ -28,7 +28,7 @@ module.exports = {
         'no-plusplus': 'off',
         'no-prototype-builtins': 'off',
         // "no-restricted-syntax": "off",
-        // "no-underscore-dangle": "off",
+        'no-underscore-dangle': 'off',
         'no-unused-vars': ['warn', { vars: 'all', args: 'after-used', ignoreRestSiblings: true }],
         'object-curly-newline': ['error', { minProperties: 5, multiline: true, consistent: true }],
         'prefer-destructuring': [

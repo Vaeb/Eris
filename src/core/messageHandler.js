@@ -48,7 +48,8 @@ export const newMessage = (msgObj) => {
     command.func({
         ...msgObjValues,
         command,
-        args: parsedArgs,
+        args: parsedArgs.builtArgs,
+        argsData: parsedArgs.builtArgsData,
     });
 };
 

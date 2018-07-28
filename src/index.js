@@ -1,6 +1,7 @@
-import { client } from './setup';
-import { onError } from './util';
 import { discordToken } from './auth';
+import { onError } from './util';
+import { client, setupCommands } from './setup';
+
 import './core/events';
 
 process.on('unhandledRejection', (reason, p) => {
@@ -8,4 +9,9 @@ process.on('unhandledRejection', (reason, p) => {
     console.log('Reason:', reason);
 });
 
-client.login(discordToken).catch(err => onError(err, 'DiscordLogin'));
+client
+    .login(discordToken)
+    .then(() => {
+        setupCommands();
+    })
+    .catch(err => onError(err, 'DiscordLogin'));

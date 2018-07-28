@@ -21,7 +21,7 @@ const parseArgCombosInner = (args, numParams) => {
 
     const savePointsStack = [];
 
-    console.log(nowGroups);
+    // console.log(nowGroups);
 
     while (focus !== endFocus || savePointsStack.length > 0) {
         if (focus === endFocus) {
@@ -36,7 +36,7 @@ const parseArgCombosInner = (args, numParams) => {
         }
     }
 
-    console.log('parseArgCombos', numParams, args, ':', argCombos);
+    // console.log('parseArgCombos', numParams, args, ':', argCombos);
 
     return argCombos;
 };
@@ -68,7 +68,7 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
         failErr = `Command "${commandName}" needs more arguments`;
     }
 
-    console.log(numUsedArgs, minArgs);
+    // console.log(numUsedArgs, minArgs);
 
     if (failErr) {
         sendEmbed(channel, {
@@ -94,7 +94,8 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
 
     // console.log('argComboVariations', argComboVariations);
 
-    let builtArgs; // Found arguments that fit params
+    let builtArgs; // Parsed arguments that fit params
+    let builtArgsData; // Data about args (e.g. type)
 
     // console.log('++', argComboVariations);
 
@@ -126,7 +127,7 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
             let failArg;
             let failParam;
 
-            console.log('> Next combo of arguments...');
+            // console.log('> Next combo of arguments...');
 
             // Each param/argument
             for (let j = 0; j < numParams; j++) {
@@ -136,7 +137,7 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
                     break;
                 }
 
-                console.log(j, nowArgs, paramIds);
+                // console.log(j, nowArgs, paramIds);
 
                 const paramId = paramIds[j];
                 const paramData = params[paramId]; // A param (data)
@@ -150,7 +151,7 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
                         // console.log('---');
                         // console.log(paramIds, '|', nowArgs, '|', numParams);
                         const { splitArgs } = splitData;
-                        console.log('SPLIT ARGS', argValue, '|', nowArgs, '|', splitArgs);
+                        // console.log('SPLIT ARGS', argValue, '|', nowArgs, '|', splitArgs);
                         if (!splitArgs.some(str => str.trim() === '')) {
                             const numNewArgs = splitArgs.length - 1;
                             argValue = splitArgs[0];
@@ -211,24 +212,36 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
                 };
 
                 builtArgs = params.map(({ id, defaultResolve, parse }) => {
-                    const newArg = { ...params[id] };
+                    let parsedArg;
 
                     const index = paramIds.indexOf(id);
 
                     if (index > -1) {
-                        newArg.value = nowArgsParsed[index];
-                        newArg.original = nowArgs[index];
+                        parsedArg = nowArgsParsed[index];
                     } else if (defaultResolve) {
                         // Resolve default value
                         if (typeof defaultResolve === 'function') {
-                            newArg.value = defaultResolve({ ...builtArgsBasic, parse });
+                            parsedArg = defaultResolve({ ...builtArgsBasic, parse });
                         } else {
-                            newArg.value = parse({ str: defaultResolve, guild, channel });
+                            parsedArg = parse({ str: defaultResolve, guild, channel });
                         }
                     }
 
-                    return newArg;
+                    return parsedArg;
                 });
+
+                builtArgsData = builtArgs.map((parsedArg, id) => {
+                    const parsedArgData = { ...params[id], value: parsedArg };
+
+                    const index = paramIds.indexOf(id);
+
+                    if (index > -1) {
+                        parsedArgData.original = nowArgs[index];
+                    }
+
+                    return parsedArgData;
+                });
+
                 return true;
             } else if (numPassNow > best.numPass) {
                 best = [{ args: nowArgs, paramIds, failArg, failParam }];
@@ -256,9 +269,9 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
 
     // console.log('Found arguments!:', foundBuiltArgs, builtArgs);
 
-    if (foundBuiltArgs) return builtArgs;
+    if (foundBuiltArgs) return { builtArgs, builtArgsData };
 
-    console.log('GOT BEST:', best);
+    // console.log('GOT BEST:', best);
 
     const usageFelds = best.map(({ failArg, failParam }) => ({
         name: `> ${params[failParam].name}`,

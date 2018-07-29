@@ -1,8 +1,8 @@
-import nodeUtil from 'util';
+const nodeUtil = require('util');
 
-import { client } from '../setup';
-import { requiresDev } from '../permissions';
-// import { print, sendEmbed, sendEmbedError } from '../util';
+const db = require('../db').default;
+const { client } = require('../setup');
+const { requiresDev } = require('../permissions');
 const { print, sendEmbed, sendEmbedError } = require('../util');
 
 /*

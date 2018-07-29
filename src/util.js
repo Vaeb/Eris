@@ -24,7 +24,7 @@ export const onError = (err, context = 'Unspecified', noLog) => {
 export const sendEmbed = (channel, {
     title = '', desc = '', footer = '', color = colors.pink, fields = [], image,
 }) => {
-    if (typeof color === 'string') color = colors[color];
+    if (typeof color === 'string') ({ [color]: color } = colors);
 
     const embed = new RichEmbed()
         .setTitle(title)
@@ -43,7 +43,7 @@ export const sendEmbed = (channel, {
         embed.addField(field.name, field.value, field.inline == null ? defInline : field.inline);
     }
 
-    channel.send(embed);
+    return channel.send(embed);
 };
 
 export const sendEmbedError = (channel, desc) =>

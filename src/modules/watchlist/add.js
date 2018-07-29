@@ -1,10 +1,10 @@
 import request from 'request-promise-native';
 import schedule from 'node-schedule';
 
-import db from '../db';
-import { theTvDb } from '../auth';
-import { client, watchlist } from '../setup';
-import { print, sendEmbed, sendEmbedError } from '../util';
+import db from '../../db';
+import { theTvDb } from '../../auth';
+import { client, watchlist } from '../../setup';
+import { print, sendEmbed, sendEmbedError } from '../../util';
 
 const baseChannel = client.channels.get('245323882360209408');
 const tvChannel = client.channels.get('455410709631729665');
@@ -116,16 +116,19 @@ const addSeries = async (channel, searchName, init) => {
         });
     });
 
-    console.log('Scheduled episodes for', seriesName);
+    // console.log('Scheduled episodes for', seriesName);
 
     return true;
 };
 
 const setupWatchlist = async () => {
     if (!watchlist._ready) await watchlist._readyPromise;
-    watchlist.forEach(async (seriesName) => {
-        await addSeries(baseChannel, seriesName, true);
-    });
+
+    const addPromises = watchlist.map(seriesName => addSeries(baseChannel, seriesName, true));
+
+    await Promise.all(addPromises);
+
+    console.log('Scheduled watchlist episodes');
 };
 
 setupWatchlist();

@@ -1,6 +1,6 @@
+import { client, setupCommands } from './setup';
 import { discordToken } from './auth';
 import { onError } from './util';
-import { client, setupCommands } from './setup';
 
 import './core/events';
 

@@ -11,7 +11,7 @@ const paramTypeToStr = (paramType, asNice) => {
 };
 
 export default {
-    cmds: ['syntax'],
+    cmds: ['syntax', 'help', 'info', 'commands', 'cmds', 'command', 'cmd'],
     desc: "Wow you're so meta",
     params: [
         {
@@ -19,6 +19,7 @@ export default {
             desc: 'Bot command name',
             types: ['CommandName'],
             examples: [['mute', 'ping']],
+            optional: true,
             parse: ({ str }) => {
                 str = str.toLowerCase();
                 if (str.substr(0, prefix.length) === prefix) str = str.substring(prefix.length);
@@ -30,6 +31,7 @@ export default {
             desc: 'Bot command parameter name',
             types: ['CommandParameterName'],
             examples: [['user', 'time', 'timeformat']],
+            requires: [0],
             optional: true,
             parse: ({ str }) => {
                 str = str.toLowerCase();
@@ -47,20 +49,28 @@ export default {
         },
     ],
 
-    func: async ({ channel, args: [{ value: command }, { value: param }] }) => {
+    func: async ({ channel, args: [command, param] }) => {
         let title;
         let desc;
         let fields;
 
-        if (!param) {
-            const { name, desc: commandDesc, params } = command;
+        if (!command) {
+            title = 'Commands';
+            desc = 'List of bot commands';
+            fields = commands.map(({ cmds, desc: commandDesc }) => ({
+                name: `> ${cmds[0].toTitleCase()}`,
+                value: commandDesc,
+                inline: false,
+            }));
+        } else if (!param) {
+            const { name: commandName, desc: commandDesc, params } = command;
 
-            title = `${name} Command Syntax`.toTitleCase();
+            title = `${commandName} Command Syntax`.toTitleCase();
             desc = commandDesc;
             fields = params.map(({
-                name, desc: paramDesc, optional, requires, types, examples,
+                name: paramName, desc: paramDesc, optional, requires, types, examples,
             }) => ({
-                name: `${name} Parameter`,
+                name: `${paramName} Parameter`,
                 value: [
                     `**Description: **${paramDesc}`,
                     `**Types: **${types.map(paramType => paramTypeToStr(paramType, true)).join(' | ')}`,

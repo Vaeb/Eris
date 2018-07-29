@@ -22,9 +22,7 @@ export const warn = client.on('warn', (warning) => {
 });
 
 export const errorWS = client.on('error', (err) => {
-    console.log('> WebSocket error:', err);
-    console.log('-----------------------------');
-    console.error(err);
+    console.log('> WebSocket error:', err.error);
 });
 
 export const message = client.on('message', (msgObj) => {

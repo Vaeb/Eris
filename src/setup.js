@@ -5,15 +5,12 @@ import path from 'path';
 import db from './db';
 import parseParamCombos from './parseParams';
 
-console.log('\nScheduler bot starting...');
-
 export const watchlist = [];
 
 const fetchWatchlist = async () => {
     try {
         const seriesNames = await db.watchlist.find();
         watchlist.push(...seriesNames.map(({ series_name: seriesName }) => seriesName));
-        console.log('Setup watchlist:', watchlist);
     } catch (err) {
         console.log('Database query error:', err);
     }
@@ -69,12 +66,15 @@ export const setupCommands = () => {
         });
 
         command.paramCombos = parseParamCombos(command.params);
+
+        if (command.name === 'syntax') console.log('syntax', command.paramCombos);
+
         command.minArgs = command.paramCombos.length
             ? command.paramCombos.reduce((nowNum, params) => Math.min(nowNum, params.length), Infinity)
             : 0;
-        console.log(`Built command: ${command.name}`);
+        // console.log(`Built command: ${command.name}`);
         commands.push(command);
     });
 };
 
-console.log('Fetched setup data');
+console.log('Set up shared data');

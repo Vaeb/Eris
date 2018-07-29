@@ -99,11 +99,11 @@
     User Time Reason
     User TF
     User TF Reason
-    User Reason 
+    User Reason
     Time
     Time TF
     Time TF Reason
-    Time Reason 
+    Time Reason
     TF
     TF Reason
     Reason
@@ -122,6 +122,8 @@ const parseParamCombos = (allParams) => {
 
     let firstOptional = paramIds.find(id => allParams[id].optional);
     if (firstOptional === undefined) firstOptional = -1; // pesky 0==false
+
+    if (paramIds.every(id => allParams[id].optional)) paramCombos.push([]); // All optional
 
     const paramStack = [];
     const usedCombos = {};

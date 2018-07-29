@@ -45,11 +45,16 @@ export const newMessage = (msgObj) => {
 
     if (parsedArgs === false) return;
 
+    // if (!parsedArgs.builtArgs) parsedArgs.builtArgs = [];
+    // if (!parsedArgs.builtArgsData) parsedArgs.builtArgsData = [];
+
+    console.log('Parsed args:', command.name, parsedArgs);
+
     command.func({
         ...msgObjValues,
         command,
-        args: parsedArgs.builtArgs,
-        argsData: parsedArgs.builtArgsData,
+        args: parsedArgs.builtArgs || [],
+        argsData: parsedArgs.builtArgsData || [],
     });
 };
 

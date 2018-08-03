@@ -1,7 +1,7 @@
 const nodeUtil = require('util');
 
 const db = require('../db').default;
-const { client } = require('../setup');
+const { client, vaebId, selfId } = require('../setup');
 const { requiresDev } = require('../permissions');
 const { print, sendEmbed, sendEmbedError } = require('../util');
 
@@ -24,8 +24,10 @@ export default {
     checkPermissions: requiresDev,
 
     func: async ({
-        guild, channel, member, command, args,
+        guild, channel, speaker, command, args,
     }) => {
+        const util = require('../util');
+
         const code = `(async () => {\n${args[0]}\n})()`;
 
         try {

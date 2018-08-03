@@ -2,14 +2,12 @@ import request from 'request-promise-native';
 import schedule from 'node-schedule';
 
 import db from '../../db';
-import { theTvDb } from '../../auth';
+// import { theTvDb } from '../../auth';
 import { client, watchlist } from '../../setup';
-import { print, sendEmbed, sendEmbedError } from '../../util';
+import { print, sendEmbed, sendEmbedError, sendEmbedWarning } from '../../util';
 
-const baseChannel = client.channels.get('245323882360209408');
+const dumpChannel = client.channels.get('245323882360209408');
 const tvChannel = client.channels.get('455410709631729665');
-
-const scheduledIds = [];
 
 // const { username, userkey, apikey } = theTvDb;
 // const jwtToken = '123';
@@ -62,18 +60,16 @@ const addSeries = async (channel, searchName, init) => {
         name: seriesName,
         status,
         schedule: scheduleData,
-        network: {
-            country: { timezone },
-        },
+        // network: {
+        //     country: { timezone },
+        // },
         image: { medium },
         _embedded: { episodes: episodesOrig },
     } = seriesData;
 
-    if (scheduledIds.includes(seriesId)) {
+    if (!init && watchlist.includes(seriesName)) {
         return sendEmbedError(channel, `Series ${seriesName} already in watchlist`);
     }
-
-    scheduledIds.push(seriesId);
 
     const nowStamp = +new Date();
 
@@ -84,9 +80,11 @@ const addSeries = async (channel, searchName, init) => {
             await db.watchlist.insert({ series_name: seriesName });
         } catch (err) {
             console.log('Database query error:', err);
-            return sendEmbedError(channel, 'Watchlist database errored');
+            return sendEmbedError(channel, 'Watchlist database query errored');
         }
     }
+
+    if (!init) watchlist.push(seriesName);
 
     // console.log('Got API data:', episodes);
 
@@ -98,25 +96,28 @@ const addSeries = async (channel, searchName, init) => {
     }
 
     if (episodes.length === 0) {
-        if (!init) sendEmbedError(channel, `Series ${seriesName} has no more episodes`);
-        return undefined;
-    }
+        if (!init) sendEmbedWarning(channel, `Series ${seriesName} has no more announced episodes`);
+    } else {
+        episodes.forEach(({ season, number: episode, airstamp }) => {
+            const airDate = new Date(airstamp);
 
-    episodes.forEach(({ season, number: episode, airstamp }) => {
-        const airDate = new Date(airstamp);
+            schedule.scheduleJob(airDate, () => {
+                if (!watchlist.includes(seriesName)) return;
 
-        schedule.scheduleJob(airDate, () => {
-            console.log('\n[ New Episode]', seriesName, season, episode, new Date(), '\n');
+                console.log('\n[ New Episode]', seriesName, season, episode, new Date(), '\n');
 
-            sendEmbed(tvChannel, {
-                title: 'New Episode!',
-                desc: `Episode ${episode} of ${seriesName} Season ${season} is now out`,
-                color: 'blue',
+                sendEmbed(tvChannel, {
+                    title: 'New Episode!',
+                    desc: `Episode ${episode} of ${seriesName} Season ${season} is now out`,
+                    color: 'blue',
+                }).then(() => {
+                    print(channel, `{{${seriesName}}}`);
+                });
             });
         });
-    });
+    }
 
-    // console.log('Scheduled episodes for', seriesName);
+    if (!init) console.log('Scheduled episodes for', seriesName);
 
     return true;
 };
@@ -124,7 +125,7 @@ const addSeries = async (channel, searchName, init) => {
 const setupWatchlist = async () => {
     if (!watchlist._ready) await watchlist._readyPromise;
 
-    const addPromises = watchlist.map(seriesName => addSeries(baseChannel, seriesName, true));
+    const addPromises = watchlist.map(seriesName => addSeries(dumpChannel, seriesName, true));
 
     await Promise.all(addPromises);
 
@@ -134,7 +135,7 @@ const setupWatchlist = async () => {
 setupWatchlist();
 
 export default {
-    cmds: ['add', 'addseries', 'watch', 'monitor', 'schedule'],
+    cmds: ['add', 'addseries', 'watch', 'monitor', 'schedule', 'addlist', 'addschedule'],
     desc: 'Add a series to the scheduler for new-episode alerts',
     params: [
         {
@@ -145,7 +146,9 @@ export default {
         },
     ],
 
-    func: ({ channel, args }) => {
-        addSeries(channel, args[0]);
+    func: async ({ channel, args }) => {
+        // console.log(111, watchlist);
+        await addSeries(channel, args[0]);
+        // console.log(222, watchlist);
     },
 };

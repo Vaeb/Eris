@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "bufferutil": "^4.0.0",
+    "dateformat": "^3.0.3",
     "discord.js": "^11.3.2",
     "erlpack": "github:hammerandchisel/erlpack",
     "glob": "^7.1.2",

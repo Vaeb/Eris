@@ -1,16 +1,28 @@
 import { commands, prefix } from '../setup';
-import { sendEmbed } from '../util';
+import { onError, sendEmbed, sendEmbedError, getStampFormat } from '../util';
 import parseCommandArgs from '../parseArgs';
 
-function getValuesFromObj(obj, ...props) {
+const getValuesFromObj = (obj, ...props) => {
     const newObj = {};
     props.forEach((prop) => {
         newObj[prop] = obj[prop];
     });
     return newObj;
-}
+};
 
-export const newMessage = (msgObj) => {
+const genCommandError = (channel, commandName) => {
+    const commandErrorTitle = `Caught_Command_${commandName.toTitleCase()}`;
+
+    return (err) => {
+        onError(err, commandErrorTitle);
+        sendEmbedError(
+            channel,
+            `Command failed due to an unknown issue\n\nDebug info: ${getStampFormat().substring(2)}${commandErrorTitle}`,
+        );
+    };
+};
+
+export const newMessage = async (msgObj) => {
     const msgObjValues = getValuesFromObj(msgObj, 'guild', 'channel', 'member', 'author', 'content');
     const { channel, member, content } = msgObjValues;
 
@@ -18,17 +30,20 @@ export const newMessage = (msgObj) => {
 
     let usedCmd;
 
-    const command = commands.find(({ cmds, noPrefix }) =>
-        cmds.some((cmd) => {
-            const checkCmd = noPrefix ? cmd : prefix + cmd;
+    const command = commands.find(({ cmds, noPrefix, params }) => {
+        const hasArgs = params.length > 0;
+
+        return cmds.some((cmd) => {
+            const checkCmd = (noPrefix ? cmd : prefix + cmd) + (hasArgs ? ' ' : '');
 
             if (contentLower.substr(0, checkCmd.length) === checkCmd) {
-                usedCmd = checkCmd;
+                usedCmd = hasArgs ? checkCmd.slice(0, -1) : checkCmd;
                 return true;
             }
 
             return false;
-        }));
+        });
+    });
 
     if (!command) return;
 
@@ -37,9 +52,9 @@ export const newMessage = (msgObj) => {
         return;
     }
 
-    console.log('Ran command:', command.name);
-
     const strArgs = content.substring(usedCmd.length + 1);
+
+    console.log('Ran command:', command.name, '| With:', strArgs);
 
     const parsedArgs = parseCommandArgs(command, strArgs, msgObj);
 
@@ -48,14 +63,20 @@ export const newMessage = (msgObj) => {
     // if (!parsedArgs.builtArgs) parsedArgs.builtArgs = [];
     // if (!parsedArgs.builtArgsData) parsedArgs.builtArgsData = [];
 
-    console.log('Parsed args:', command.name, parsedArgs);
+    const commandError = genCommandError(channel, command.name);
 
-    command.func({
-        ...msgObjValues,
-        command,
-        args: parsedArgs.builtArgs || [],
-        argsData: parsedArgs.builtArgsData || [],
-    });
+    try {
+        await command.func({
+            ...msgObjValues,
+            speaker: member,
+            command,
+            commandError,
+            args: parsedArgs.builtArgs || [],
+            argsData: parsedArgs.builtArgsData || [],
+        });
+    } catch (err) {
+        commandError(err);
+    }
 };
 
 console.log('Ran messageHandler module');

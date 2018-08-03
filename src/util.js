@@ -1,9 +1,12 @@
 import { RichEmbed } from 'discord.js';
+import dateformat from 'dateformat';
 import { colors, defInline, vaebId, noChar } from './setup';
 
 String.prototype.toTitleCase = function toTitleCaseFunc() {
     return this.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
 };
+
+export const getStampFormat = (date = new Date()) => dateformat(date, '| dd/mm/yyyy | HH:MM | ');
 
 export const print = (channel, ...args) => channel.send(args.join(' '), { split: true });
 
@@ -21,9 +24,17 @@ export const onError = (err, context = 'Unspecified', noLog) => {
     return errContext;
 };
 
-export const sendEmbed = (channel, {
-    title = '', desc = '', footer = '', color = colors.pink, fields = [], image,
-}) => {
+export const sendEmbed = (channel, embedData = {}, embedDesc) => {
+    if (typeof embedData !== 'object') embedData = { title: embedData };
+
+    if (embedDesc !== undefined) embedData.desc = embedDesc;
+
+    const {
+        title = '', desc = '', footer = '', color: colorOrig = colors.pink, fields = [], image,
+    } = embedData;
+
+    let color = colorOrig;
+
     if (typeof color === 'string') ({ [color]: color } = colors);
 
     const embed = new RichEmbed()
@@ -51,6 +62,13 @@ export const sendEmbedError = (channel, desc) =>
         title: 'Command Error',
         desc,
         color: colors.red,
+    });
+
+export const sendEmbedWarning = (channel, desc) =>
+    sendEmbed(channel, {
+        title: 'Command Warning',
+        desc,
+        color: colors.yellow,
     });
 
 export const globalRegex = (str, rgx) => {
@@ -241,3 +259,8 @@ export const getMemberByMixed = (name, guild) => {
     if (targetMember == null) targetMember = getMemberByName(name, guild);
     return targetMember;
 };
+
+export const staffPerms = ['ADMINISTRATOR', 'KICK_MEMBERS', 'BAN_MEMBERS', 'MANAGE_CHANNELS', 'MANAGE_GUILD', 'MANAGE_MESSAGES'];
+
+export const isStaff = member =>
+    member.hasPermission(staffPerms, false, true, true) || member.roles.some(({ name }) => /^(?:staff|admin|(?:head\s+?)?mod)/i.test(name));

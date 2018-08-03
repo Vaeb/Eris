@@ -28,7 +28,13 @@ export const client = new Client({
 
 export const commands = [];
 
-export const colors = { green: 0x00e676, blue: 0x00bcd4, pink: 0xd062d8, red: 0xd63031 };
+export const colors = {
+    green: 0x00e676,
+    blue: 0x00bcd4,
+    pink: 0xd062d8,
+    red: 0xd63031,
+    yellow: 0xf39c12,
+};
 
 export const prefix = '==';
 export const vaebId = '107593015014486016';
@@ -66,8 +72,6 @@ export const setupCommands = () => {
         });
 
         command.paramCombos = parseParamCombos(command.params);
-
-        if (command.name === 'syntax') console.log('syntax', command.paramCombos);
 
         command.minArgs = command.paramCombos.length
             ? command.paramCombos.reduce((nowNum, params) => Math.min(nowNum, params.length), Infinity)

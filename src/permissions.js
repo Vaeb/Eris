@@ -1,4 +1,5 @@
-// import { onError } from './util';
+import { vaebId } from './setup';
+import { isStaff } from './util';
 
 /* const createResolver = (resolver) => {
     const baseResolver = resolver;
@@ -31,4 +32,6 @@ const createResolver = (resolver) => {
     return baseResolver;
 };
 
-export const requiresDev = createResolver(({ member }) => member.id === '107593015014486016');
+export const requiresDev = createResolver(({ member }) => member.id === vaebId);
+
+export const requiresStaff = createResolver(({ member }) => isStaff(member));

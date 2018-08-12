@@ -264,3 +264,16 @@ export const staffPerms = ['ADMINISTRATOR', 'KICK_MEMBERS', 'BAN_MEMBERS', 'MANA
 
 export const isStaff = member =>
     member.hasPermission(staffPerms, false, true, true) || member.roles.some(({ name }) => /^(?:staff|admin|(?:head\s+?)?mod)/i.test(name));
+
+export const getRandomInt = (minParam, maxParam) => {
+    maxParam++; // inclusive, inclusive
+    const min = Math.ceil(minParam);
+    const max = Math.floor(maxParam);
+    return Math.floor(Math.random() * (max - min)) + min;
+};
+
+export const strToBoolean = (str) => {
+    if (str === 'true' || str === '1' || str === 'on') return true;
+    if (str === 'false' || str === '0' || str === 'off') return false;
+    return undefined;
+};

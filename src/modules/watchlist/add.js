@@ -1,7 +1,7 @@
 import request from 'request-promise-native';
 import schedule from 'node-schedule';
 
-import db from '../../db';
+import { db } from '../../db';
 // import { theTvDb } from '../../auth';
 import { client, watchlist } from '../../setup';
 import { print, sendEmbed, sendEmbedError, sendEmbedWarning } from '../../util';

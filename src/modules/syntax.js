@@ -1,6 +1,3 @@
-import nodeUtil from 'util';
-
-import { requiresDev } from '../permissions';
 import { sendEmbed } from '../util';
 import { commands, prefix } from '../setup';
 
@@ -57,8 +54,8 @@ export default {
         if (!command) {
             title = 'Commands';
             desc = 'List of bot commands';
-            fields = commands.map(({ cmds, desc: commandDesc }) => ({
-                name: `> ${cmds[0].toTitleCase()}`,
+            fields = commands.map(({ cmds, desc: commandDesc, noPrefix }) => ({
+                name: `${noPrefix ? '' : '=='}${cmds[0]}`,
                 value: commandDesc,
                 inline: false,
             }));

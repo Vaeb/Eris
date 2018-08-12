@@ -1,7 +1,9 @@
 const nodeUtil = require('util');
 
 const db = require('../db').default;
-const { client, vaebId, selfId } = require('../setup');
+const {
+    client, vaebId, selfId, dataGuilds, dataMembersAll,
+} = require('../setup');
 const { requiresDev } = require('../permissions');
 const { print, sendEmbed, sendEmbedError } = require('../util');
 

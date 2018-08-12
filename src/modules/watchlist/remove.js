@@ -1,7 +1,7 @@
 import request from 'request-promise-native';
 // import schedule from 'node-schedule';
 
-import db from '../../db';
+import { db } from '../../db';
 import { watchlist } from '../../setup';
 import { print, sendEmbed, sendEmbedError } from '../../util';
 

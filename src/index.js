@@ -1,4 +1,4 @@
-import { client, setupCommands } from './setup';
+import { client, setupCommands, setupMembers } from './setup';
 import { discordToken } from './auth';
 import { onError } from './util';
 
@@ -9,9 +9,25 @@ process.on('unhandledRejection', (reason, p) => {
     console.log('Reason:', reason);
 });
 
-client
-    .login(discordToken)
-    .then(() => {
-        setupCommands();
-    })
-    .catch(err => onError(err, 'DiscordLogin'));
+const maxAttempts = 3;
+
+const init = async (attempts = 1) => {
+    try {
+        await client.login(discordToken);
+    } catch (err) {
+        onError(err, 'DiscordLogin');
+
+        if (attempts < maxAttempts) {
+            init(attempts + 1);
+        } else {
+            console.log(`Failed to login after ${attempts} attempts`);
+        }
+
+        return;
+    }
+
+    setupCommands();
+    await setupMembers();
+};
+
+init();

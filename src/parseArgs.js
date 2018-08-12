@@ -1,7 +1,9 @@
 import { prefix } from './setup';
-import { print, sendEmbed, cloneDeepArray } from './util';
+import { sendEmbed, cloneDeepArray } from './util';
 
 const parseArgCombosInner = (args, numParams) => {
+    if (numParams === 0) return [];
+
     if (args.length < numParams) return null;
 
     let nowGroups = [];
@@ -28,7 +30,9 @@ const parseArgCombosInner = (args, numParams) => {
             ({ nowGroups, focus } = savePointsStack.pop()); // Restore savepoint when hit end
         } else {
             const focusGroup = nowGroups[focus];
+            // console.log(numParams, nowGroups, '|', focus, '|', focusGroup);
             nowGroups[focus + 1].unshift(focusGroup.pop()); // Move eoFocus to soFocusNext
+            // console.log('-unshifted-');
             argCombos.push(nowGroups.map(arr => arr.join(' ')));
             // More than 1 left = Push savepoint
             if (focusGroup.length > 1) savePointsStack.push({ focus, nowGroups: cloneDeepArray(nowGroups) });
@@ -36,7 +40,7 @@ const parseArgCombosInner = (args, numParams) => {
         }
     }
 
-    // console.log('parseArgCombos', numParams, args, ':', argCombos);
+    console.log('parseArgCombos', numParams, args, ':', argCombos);
 
     return argCombos;
 };
@@ -52,7 +56,7 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
 
     const { params, paramCombos, minArgs } = command;
     const commandName = command.cmds[0];
-    const commandFormat = command.noPrefix ? commandName : prefix + commandName;
+    // const commandFormat = command.noPrefix ? commandName : prefix + commandName;
 
     const numUsedArgs = strArgs.length === 0 ? 0 : usedArgs.length;
 
@@ -107,7 +111,7 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
 
         // if (numUsedArgs < numParams) return false;
 
-        let thrown = false;
+        // let thrown = false;
         const argCombos = argComboVariations[paramIdsOrig.length]; // Combinations of arguments
 
         if (!argCombos) return false;
@@ -133,7 +137,7 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
             for (let j = 0; j < numParams; j++) {
                 if (j >= nowArgs.length) {
                     passed = false;
-                    thrown = true;
+                    // thrown = true;
                     break;
                 }
 

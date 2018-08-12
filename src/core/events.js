@@ -1,5 +1,7 @@
-import { client } from '../setup';
+import { db, fetchProp } from '../db';
+import { client, dataAll, dataGuilds, dataMembersAll, defaultGuild, defaultMember } from '../setup';
 import { newMessage } from './messageHandler';
+import { onError } from '../util';
 
 export const ready = client.on('ready', () => {
     console.log(`> Connected as ${client.user.username}`);
@@ -26,8 +28,66 @@ export const errorWS = client.on('error', (err) => {
 });
 
 export const message = client.on('message', (msgObj) => {
-    if (!msgObj.guild) return;
+    if (!msgObj.guild || !dataAll._ready) return;
     newMessage(msgObj);
+});
+
+export const guildCreate = client.on('guildCreate', async (guild) => {
+    console.log(`> Joined guild ${guild.name}`);
+
+    const guildData = fetchProp(dataGuilds, guild.id);
+    guildData.guildName = guild.name;
+
+    await db.guilds.update(
+        { guildId: guild.id },
+        { $set: { guildName: guild.name }, $setOnInsert: defaultGuild(guild) },
+        { upsert: true, multi: false },
+    );
+
+    console.log('Synced new guild');
+
+    try {
+        guild = await guild.fetchMembers();
+
+        const dataMembers = fetchProp(dataMembersAll, guild.id);
+
+        const newMembers = guild.members.filter(member => !dataMembers[member.id]).map(defaultMember);
+
+        if (newMembers.length > 0) {
+            const bulk = db.members.initializeUnorderedBulkOp();
+
+            newMembers.forEach((memberDoc) => {
+                bulk.insert(memberDoc);
+            });
+
+            try {
+                await bulk.execute();
+                console.log(`Synced ${newMembers.length} new members for ${guild.name}`);
+            } catch (err) {
+                onError(err, 'BulkInsertNewMembers_Query');
+            }
+        }
+    } catch (err) {
+        onError(err, `NewGuildFetchMembers_${guild.name}`);
+    }
+
+    console.log('Synced new guild members');
+});
+
+export const guildMemberAdd = client.on('guildMemberAdd', async (member) => {
+    const { guild } = member;
+
+    try {
+        await db.members.update(
+            { guildId: guild.id, userId: member.id },
+            { $setOnInsert: defaultMember(member) },
+            { upsert: true, multi: false },
+        );
+    } catch (err) {
+        onError(err, 'GuildMemberAdd_Update');
+    }
+
+    console.log(`Synced new ${guild.name} member ${member.user.username} to db`);
 });
 
 console.log('Ran events module');

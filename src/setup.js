@@ -32,7 +32,7 @@ export const client = new Client({
 
 export const commands = [];
 
-export const definedServers = {
+export const definedGuilds = {
     vashta: '477270527535480834',
     cafedev: '455405043898646543',
 };
@@ -44,6 +44,9 @@ export const colors = {
     red: 0xd63031,
     yellow: 0xf39c12,
 };
+
+export const minExp = 10;
+export const maxExp = 20;
 
 export const prefix = '.';
 export const vaebId = '107593015014486016';

@@ -55,7 +55,7 @@ export default {
             title = 'Commands';
             desc = 'List of bot commands';
             fields = commands.map(({ cmds, desc: commandDesc, noPrefix }) => ({
-                name: `${noPrefix ? '' : '=='}${cmds[0]}`,
+                name: `${noPrefix ? '' : prefix}${cmds[0]}`,
                 value: commandDesc,
                 inline: false,
             }));
@@ -82,7 +82,7 @@ export default {
             }));
         }
 
-        console.log(title, desc, fields);
+        // console.log(title, desc, fields);
 
         sendEmbed(channel, { title, desc, fields });
     },

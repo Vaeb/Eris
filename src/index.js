@@ -2,10 +2,11 @@ import glob from 'glob';
 import path from 'path';
 
 import { client, commands } from './setup';
-import { db, readyQuery, fetchProp, dataGuilds, dataMembersAll, dataAll, defaultGuild, defaultMember, watchlist } from './db';
+import { db, dbPromise, readyQuery, fetchProp, dataGuilds, dataMembersAll, dataAll, defaultGuild, defaultMember, watchlist } from './db';
 import { discordToken } from './auth';
 import { onError } from './util';
 import parseParamCombos from './parseParams';
+import { expRolesInit } from './expRoles';
 
 import './core/events';
 
@@ -33,7 +34,7 @@ const setupCommands = () => {
     };
     const defaultPermissions = () => true;
 
-    glob.sync('./src/modules/**/*.js').forEach((file) => {
+    glob.sync('./src/commands/**/*.js').forEach((file) => {
         const filePath = path.resolve(file);
         const command = require(filePath).default;
 
@@ -71,6 +72,8 @@ const setupMembers = async () => {
         // if (!dataMembersAll._ready) await dataMembersAll._readyPromise;
         // if (!dataGuilds._ready) await dataGuilds._readyPromise;
 
+        let numSyncedGuilds = 0;
+
         await Promise.all(client.guilds.map(async (guild) => {
             // const guildData = fetchProp(dataGuilds, guild.id);
             // guildData.guildName = guild.name;
@@ -82,9 +85,13 @@ const setupMembers = async () => {
                 { $set: { guildName }, $setOnInsert: defaultGuildObj },
                 { upsert: true, multi: false },
             );
+
+            numSyncedGuilds++;
         }));
 
-        console.log('Synced guilds');
+        console.log(`Synced ${numSyncedGuilds} guilds to db`);
+
+        let numSyncedMembers = 0;
 
         await Promise.all(client.guilds.map(async (guildOrig) => {
             try {
@@ -98,6 +105,8 @@ const setupMembers = async () => {
                         { $setOnInsert: defaultMemberObj },
                         { upsert: true, multi: false },
                     );
+
+                    numSyncedMembers++;
                 }));
 
                 // const dataMembers = fetchProp(dataMembersAll, guild.id);
@@ -123,14 +132,10 @@ const setupMembers = async () => {
             }
         }));
 
-        console.log('Synced members');
+        console.log(`Synced ${numSyncedMembers} members to db`);
     } catch (err) {
         onError(err, 'InitSetupGuilds');
     }
-
-    console.log('Fetched all data');
-
-    dataAll._ready = true;
 };
 
 const init = async (attempts = 1) => {
@@ -147,6 +152,10 @@ const init = async (attempts = 1) => {
 
         return;
     }
+
+    await dbPromise;
+
+    console.log('> Syncing data');
 
     await setupMembers();
 
@@ -181,7 +190,16 @@ const init = async (attempts = 1) => {
         watchlist.push(...seriesNames.map(({ series_name: seriesName }) => seriesName));
     });
 
+    if (!dataMembersAll._ready) await dataMembersAll._readyPromise;
+    if (!dataGuilds._ready) await dataGuilds._readyPromise;
+
+    dataAll._ready = true;
+
+    console.log('Finished syncing data');
+
     setupCommands();
+
+    expRolesInit();
 };
 
 init();

@@ -1,4 +1,4 @@
-import { vaebId, definedServers } from './setup';
+import { vaebId, definedGuilds } from './setup';
 import { isStaff } from './util';
 
 /* const createResolver = (resolver) => {
@@ -37,4 +37,4 @@ export const requiresDev = createResolver(({ member }) => member.id === vaebId);
 export const requiresStaff = createResolver(({ member }) => isStaff(member));
 
 export const requiresServer = (...serverNames) =>
-    createResolver(({ guild }) => serverNames.map(name => definedServers[name] || 'ServerNameNotDefined').includes(guild.id));
+    createResolver(({ guild }) => serverNames.map(name => definedGuilds[name] || 'ServerNameNotDefined').includes(guild.id));

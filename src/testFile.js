@@ -5,7 +5,7 @@ console.log('\nRan TestFile');
 
 const defaultParse = str => str;
 
-const command = require('./modules/test').default;
+const command = require('./commands/test').default;
 
 command.params.forEach((paramData, index) => {
     paramData.id = index;

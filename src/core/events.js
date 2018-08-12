@@ -35,7 +35,7 @@ export const message = client.on('message', (msgObj) => {
 export const guildCreate = client.on('guildCreate', async (guild) => {
     console.log(`> Joined guild ${guild.name}`);
 
-    const guildData = fetchProp(dataGuilds, guild.id);
+    const guildData = fetchProp(dataGuilds, guild.id, defaultGuild(guild));
     guildData.guildName = guild.name;
 
     await db.guilds.update(
@@ -76,6 +76,9 @@ export const guildCreate = client.on('guildCreate', async (guild) => {
 
 export const guildMemberAdd = client.on('guildMemberAdd', async (member) => {
     const { guild } = member;
+
+    const dataMembers = fetchProp(dataMembersAll, guild.id);
+    fetchProp(dataMembers, member.id, defaultMember(member));
 
     try {
         await db.members.update(

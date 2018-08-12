@@ -5,6 +5,12 @@ export const dataGuilds = {};
 export const dataMembersAll = {};
 export const watchlist = [];
 
+let dbPromiseResolve;
+
+export const dbPromise = new Promise((resolve) => {
+    dbPromiseResolve = resolve;
+});
+
 export const db = mongoist('niimp_now');
 
 // Emitted if no db connection could be established
@@ -13,9 +19,13 @@ db.on('error', (err) => {
 });
 
 // Emitted if a db connection was established
+// promise for on connect
 db.on('connect', () => {
     console.log('Database connected');
+    dbPromiseResolve(true);
 });
+
+db.runCommand({ ping: 1 });
 
 const readyQueryPromise = async (obj, queryMethod) => {
     try {

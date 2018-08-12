@@ -1,6 +1,7 @@
-import { db, fetchProp } from '../db';
-import { dataMembersAll, commands, prefix, dataGuilds } from '../setup';
+import { commands, prefix, minExp, maxExp } from '../setup';
+import { db, fetchProp, dataGuilds, dataMembersAll } from '../db';
 import { onError, sendEmbed, sendEmbedError, getStampFormat, getRandomInt } from '../util';
+import { checkExpRole } from '../expRoles';
 import parseCommandArgs from '../parseArgs';
 
 const getValuesFromObj = (obj, props, newProps) => {
@@ -60,7 +61,7 @@ const checkCommand = async (msgObjValues) => {
 
     const strArgs = content.substring(usedCmd.length + 1);
 
-    console.log('Ran command:', command.name, '| With:', strArgs);
+    console.log('> Ran command:', command.name, '| With:', strArgs, '| Speaker:', member.user.username);
 
     const parsedArgs = parseCommandArgs(command, strArgs, msgObjValues);
 
@@ -89,21 +90,21 @@ const checkCommand = async (msgObjValues) => {
 
 let givenExp = {};
 
-let expIncrement = getRandomInt(10, 20);
+let expIncrement = getRandomInt(minExp, maxExp);
 
 setInterval(() => {
-    const givenExpNow = givenExp;
+    const givenExpNow = Object.entries(givenExp);
     givenExp = {};
 
     const expInc = expIncrement;
-    expIncrement = getRandomInt(10, 20);
+    expIncrement = getRandomInt(minExp, maxExp);
 
-    Object.entries(givenExpNow).forEach(([guildId, userIds]) => {
+    givenExpNow.forEach(([guildId, userIds]) => {
         db.members
             .update({ guildId, userId: { $in: userIds } }, { $inc: { exp: expInc } }, { upsert: false, multi: true })
             .catch(err => onError(err, 'Query_ExpUpdate'));
 
-        // console.log(`Incremented exp values by ${expInc} for ${dataGuilds[guildId].guildName} members:`, userIds.join(', '));
+        console.log(`Incremented xp values by ${expInc} for ${dataGuilds[guildId].guildName} members:`, userIds.join(', '));
     });
 }, 1000 * 45);
 
@@ -111,19 +112,25 @@ const giveExp = async ({ guild, channel, member, content }) => {
     if (content.length === 0) return;
 
     if (!dataGuilds[guild.id].expEnabled) {
-        // console.log(`Exp disabled for guild ${guild.name}`);
+        // console.log(`Xp disabled for guild ${guild.name}`);
         return;
     }
 
     const newExpUsers = fetchProp(givenExp, guild.id, []);
-    if (!newExpUsers.includes(member.id)) {
-        const dataMembers = dataMembersAll[guild.id];
+    const userId = member.id;
 
-        newExpUsers.push(member.id);
+    if (!newExpUsers.includes(userId)) {
+        const memberData = dataMembersAll[guild.id][userId];
 
-        fetchProp(dataMembers, member.id, { exp: 0 }).exp += expIncrement;
+        newExpUsers.push(userId);
+
+        const newExp = memberData.exp + expIncrement;
+        memberData.exp = newExp;
+
+        checkExpRole(channel, member, newExp);
+
         // console.log(member.user.username, dataMembers[member.id]);
-        // console.log(`Added ${expIncrement} exp for ${member.user.username} in guild ${guild.name}: ${dataMembers[member.id].exp}`);
+        // console.log(`Added ${expIncrement} xp for ${member.user.username} in guild ${guild.name}: ${memberData.exp}`);
     }
 };
 

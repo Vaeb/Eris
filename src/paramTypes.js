@@ -9,6 +9,7 @@ export const userResolvable = {
         ['Vaeb#0001', 'Niimp Now#6015'],
     ],
     parse: ({ str, guild }) => getMemberByMixed(str, guild) || isId(str) || undefined,
+    parseFail: ({ str }) => `User not found from resolvable "${str}"`,
 };
 
 export const timeFormat = {

@@ -1,4 +1,4 @@
-import { watchlist } from '../../setup';
+import { watchlist } from '../../db';
 import { print, sendEmbed, sendEmbedError } from '../../util';
 import { requiresServer } from '../../permissions';
 

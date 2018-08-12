@@ -1,8 +1,7 @@
 import request from 'request-promise-native';
 // import schedule from 'node-schedule';
 
-import { db } from '../../db';
-import { watchlist } from '../../setup';
+import { db, watchlist } from '../../db';
 import { print, sendEmbed, sendEmbedError } from '../../util';
 
 const apiRequest = async (channel, uriData) => {

@@ -1,28 +1,9 @@
 import mongoist from 'mongoist';
-import nodeUtil from 'util';
-import dateformat from 'dateformat';
 
-console.log('\n> Scheduler bot starting...\n');
-
-console.logCopy = console.log.bind(console);
-
-console.log = function log(...args) {
-    if (!args.length) return this.logCopy();
-
-    const nowDate = new Date();
-    // nowDate.setHours(nowDate.getHours() + 1);
-
-    let out = nodeUtil.format(...args);
-
-    if (out.slice(0, 2) === '> ') out = `\n${out}`;
-
-    let outIndex = out.search(/[^\n\r]/g);
-    if (outIndex === -1) outIndex = 0;
-
-    out = out.slice(0, outIndex) + dateformat(nowDate, '| dd/mm/yyyy | HH:MM | ') + out.slice(outIndex);
-
-    return this.logCopy(out);
-};
+export const dataAll = {};
+export const dataGuilds = {};
+export const dataMembersAll = {};
+export const watchlist = [];
 
 export const db = mongoist('niimp_now');
 
@@ -59,6 +40,9 @@ export const fetchProp = (obj, guildId, defaultVal = {}) => {
 
     return obj[guildId];
 };
+
+export const defaultGuild = guild => ({ guildId: guild.id, guildName: guild.name, expEnabled: true });
+export const defaultMember = member => ({ guildId: member.guild.id, userId: member.id, exp: 0 });
 
 export const syncDb = (obj, collection, indexes) => {};
 

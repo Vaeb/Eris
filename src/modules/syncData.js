@@ -1,7 +1,7 @@
 import { requiresDev } from '../permissions';
 
-import { db, fetchProp } from '../db';
-import { client, dataGuilds, dataMembersAll, defaultGuild, defaultMember } from '../setup';
+import { client } from '../setup';
+import { db, fetchProp, dataGuilds, dataMembersAll, defaultGuild, defaultMember } from '../db';
 import { print, onError } from '../util';
 
 export default {

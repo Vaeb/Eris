@@ -1,9 +1,9 @@
 import request from 'request-promise-native';
 import schedule from 'node-schedule';
 
-import { db } from '../../db';
 // import { theTvDb } from '../../auth';
-import { client, watchlist } from '../../setup';
+import { client } from '../../setup';
+import { db, watchlist } from '../../db';
 import { print, sendEmbed, sendEmbedError, sendEmbedWarning } from '../../util';
 
 const dumpChannel = client.channels.get('245323882360209408');

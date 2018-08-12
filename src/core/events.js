@@ -1,5 +1,5 @@
-import { db, fetchProp } from '../db';
-import { client, dataAll, dataGuilds, dataMembersAll, defaultGuild, defaultMember } from '../setup';
+import { client } from '../setup';
+import { db, fetchProp, dataAll, dataGuilds, dataMembersAll, defaultGuild, defaultMember } from '../db';
 import { newMessage } from './messageHandler';
 import { onError } from '../util';
 

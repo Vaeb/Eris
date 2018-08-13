@@ -1,4 +1,4 @@
-# Niimp-Now
+# Eris
 Discord bot with an advanced argument parsing and parameter setup system.
 
 # Example Usage

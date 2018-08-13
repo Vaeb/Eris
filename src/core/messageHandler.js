@@ -43,7 +43,7 @@ const checkCommand = async (msgObjValues) => {
         return cmds.some((cmd) => {
             const checkCmd = (noPrefix ? cmd : prefix + cmd) + (hasArgs ? ' ' : '');
 
-            if (contentLower.substr(0, checkCmd.length) === checkCmd) {
+            if (hasArgs ? contentLower.substr(0, checkCmd.length) === checkCmd : contentLower === checkCmd) {
                 usedCmd = hasArgs ? checkCmd.slice(0, -1) : checkCmd;
                 return true;
             }
@@ -54,7 +54,7 @@ const checkCommand = async (msgObjValues) => {
 
     if (!command) return false;
 
-    if (!command.checkPermissions({ guild, channel, member })) {
+    if (command.checkPermissions.some(permFunc => !permFunc({ guild, channel, member }))) {
         sendEmbed(channel, { title: 'Nope!', desc: 'You are not allowed to use this command.' });
         return true;
     }
@@ -106,7 +106,7 @@ setInterval(() => {
 
         // console.log(`Incremented xp values by ${expInc} for ${dataGuilds[guildId].guildName} members:`, userIds.join(', '));
     });
-}, 1000 * 45);
+}, 1000 * 60);
 
 const giveExp = async ({ guild, channel, member, content }) => {
     if (content.length === 0) return;

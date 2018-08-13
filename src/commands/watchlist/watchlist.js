@@ -7,7 +7,7 @@ export default {
     desc: 'Add a series to the scheduler for new-episode alerts',
     params: [],
 
-    checkPermissions: requiresServer('cafedev'),
+    checkPermissions: [requiresServer('cafedev')],
 
     func: async ({ channel }) => {
         if (!watchlist._ready) return sendEmbedError(channel, 'Watchlist still loading');

@@ -8,7 +8,7 @@ export default {
     cmds: ['sync-data', 'syncdata', 'updatedata'],
     desc: 'Force sync all guild data to db (and re-fetch)',
 
-    checkPermissions: requiresDev,
+    checkPermissions: [requiresDev],
 
     func: async ({ channel }) => {
         console.log('> Syncing guilds');

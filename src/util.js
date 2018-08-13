@@ -96,9 +96,13 @@ export const cloneDeepJson = obj => JSON.parse(JSON.stringify(obj));
 
 export const cloneDeepArray = arr => arr.map(val => (isArray(val) ? cloneDeepArray(val) : val));
 
-export const matchWholeNumberRegex = /^\d*(?:\.\d+)?$/;
+export const numberIf = str => (str == null ? str : Number(str));
 
-export const matchWholeNumber = str => (str.match(matchWholeNumberRegex) || [])[0];
+export const matchPosDecimalRegex = /^\d*(?:\.\d+)?$/;
+export const matchPosIntegerRegex = /^\d+$/;
+
+export const matchPosDecimal = str => numberIf((str.match(matchPosDecimalRegex) || [])[0]);
+export const matchPosInteger = str => numberIf((str.match(matchPosIntegerRegex) || [])[0]);
 
 export const getBaseMuteTime = member => String(member).length;
 
@@ -264,6 +268,8 @@ export const staffPerms = ['ADMINISTRATOR', 'KICK_MEMBERS', 'BAN_MEMBERS', 'MANA
 
 export const isStaff = member =>
     member.hasPermission(staffPerms, false, true, true) || member.roles.some(({ name }) => /^(?:staff|admin|(?:head\s+?)?mod)/i.test(name));
+
+export const isAdmin = member => member.hasPermission('ADMINISTRATOR');
 
 export const getRandomInt = (minParam, maxParam) => {
     maxParam++; // inclusive, inclusive

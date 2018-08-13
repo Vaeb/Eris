@@ -21,7 +21,7 @@ export default {
         },
     ],
 
-    checkPermissions: requiresDev,
+    checkPermissions: [requiresDev],
 
     func: async ({
         guild, channel, speaker, command, args,

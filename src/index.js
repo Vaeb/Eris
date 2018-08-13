@@ -46,7 +46,7 @@ const setupCommands = () => {
         command.name = command.cmds[0];
         if (!command.desc) command.desc = 'Command description not provided';
         if (!command.params) command.params = [];
-        if (!command.checkPermissions) command.checkPermissions = defaultPermissions;
+        if (!command.checkPermissions) command.checkPermissions = [defaultPermissions];
 
         command.params.forEach((paramData, index) => {
             paramData.id = index;

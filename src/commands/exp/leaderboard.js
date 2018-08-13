@@ -2,12 +2,15 @@ import { noChar } from '../../setup';
 import { sendEmbed, sendEmbedError } from '../../util';
 import { dataMembersAll } from '../../db';
 import { expRoleGuilds, getRankFromXp } from '../../expRoles';
+import { requiresExpRoles } from '../../permissions';
 // import { userResolvable } from '../../paramTypes';
 
 export default {
     cmds: ['leaderboard', 'xpleaderboard', 'xpboard', 'top', 'xptop', 'scores'],
     desc: "Check a user's xp",
     params: [],
+
+    // checkPermissions: [requiresExpRoles],
 
     func: ({ guild, channel, speaker }) => {
         if (!expRoleGuilds.includes(guild.id)) {
@@ -26,7 +29,9 @@ export default {
             `${guild.name} XP Ranks`,
             `${noChar}\n${dataMembers
                 .map(({ userId, exp }, index) =>
-                    `[${index + 1}] ${guild.members.get(userId).user.username}: ${exp} XP (${getRankFromXp(exp).name})`)
+                    `[${index + 1}] ${
+                        guild.members.get(userId) ? guild.members.get(userId).user.username : `User Left (${userId})`
+                    }: ${exp} XP (${getRankFromXp(exp).name})`)
                 .join('\n\n')}`,
         );
     },

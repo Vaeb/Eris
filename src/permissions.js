@@ -1,5 +1,7 @@
 import { vaebId, definedGuilds } from './setup';
-import { isStaff } from './util';
+import { isStaff, isAdmin } from './util';
+import { dataGuilds } from './db';
+import { expRoleGuilds } from './expRoles';
 
 /* const createResolver = (resolver) => {
     const baseResolver = resolver;
@@ -34,7 +36,13 @@ const createResolver = (resolver) => {
 
 export const requiresDev = createResolver(({ member }) => member.id === vaebId);
 
+export const requiresAdmin = createResolver(({ member }) => isAdmin(member));
+
 export const requiresStaff = createResolver(({ member }) => isStaff(member));
 
 export const requiresServer = (...serverNames) =>
     createResolver(({ guild }) => serverNames.map(name => definedGuilds[name] || 'ServerNameNotDefined').includes(guild.id));
+
+export const requiresExp = createResolver(({ guild }) => dataGuilds[guild.id].expEnabled);
+
+export const requiresExpRoles = requiresExp.createResolver(({ guild }) => expRoleGuilds.includes(guild.id));

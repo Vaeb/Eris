@@ -16,10 +16,10 @@ export default {
         },
     ],
 
-    checkPermissions: requiresDev,
+    checkPermissions: [requiresDev],
 
     func: async ({ guild, channel, args }) => {
-        const guildData = fetchProp(dataGuilds, guild.id);
+        const guildData = dataGuilds[guild.id];
 
         if (guildData.expEnabled === args[0]) {
             sendEmbedError(channel, `XP feature is already ${args[0] ? 'enabled' : 'disabled'}`);

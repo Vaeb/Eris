@@ -1,5 +1,5 @@
 import { requiresDev } from '../permissions';
-import { print, getMemberByMixed, isId, matchWholeNumber, getBaseMuteTime, getFullName } from '../util';
+import { print, getMemberByMixed, isId, matchPosDecimal, getBaseMuteTime, getFullName } from '../util';
 import { userResolvable, timeFormat } from '../paramTypes';
 
 export default {
@@ -33,7 +33,7 @@ export default {
                 if (strTimeFormat) return { type: 1, splitArgs: [strTime, strTimeFormat] };
                 return undefined;
             },
-            parse: ({ str }) => matchWholeNumber(str),
+            parse: ({ str }) => matchPosDecimal(str),
             parseFail: ({ str }) => `"${str}" is not a positive number`,
             defaultResolve: ({ args }) => getBaseMuteTime(args[0].value),
         },
@@ -54,12 +54,12 @@ export default {
             types: ['Text'],
             examples: [['Continuing to spam after being warned', 'Profanity towards other users after being asked to stop']],
             optional: true,
-            // parse: ({ str }) => matchWholeNumber(str),
+            // parse: ({ str }) => matchPosDecimal(str),
             defaultResolve: 'Reason not provided',
         },
     ],
 
-    // checkPermissions: requiresDev,
+    // checkPermissions: [requiresDev],
 
     func: ({ channel, args, argsData }) => {
         // prettier-ignore

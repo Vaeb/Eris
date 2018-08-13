@@ -4,7 +4,7 @@ import { onError, sendEmbed } from './util';
 
 const baseExp = (minExp + maxExp) / 2;
 
-const expRoleGuilds = [definedGuilds.vashta];
+export const expRoleGuilds = [definedGuilds.vashta];
 
 export const expRoleSettings = [
     { name: 'Adamantite', expRequired: baseExp * 5500 }, // 82500

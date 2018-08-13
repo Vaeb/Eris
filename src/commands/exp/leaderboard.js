@@ -1,7 +1,7 @@
 import { noChar } from '../../setup';
-import { sendEmbed } from '../../util';
+import { sendEmbed, sendEmbedError } from '../../util';
 import { dataMembersAll } from '../../db';
-import { getRankFromXp } from '../../expRoles';
+import { expRoleGuilds, getRankFromXp } from '../../expRoles';
 // import { userResolvable } from '../../paramTypes';
 
 export default {
@@ -10,6 +10,11 @@ export default {
     params: [],
 
     func: ({ guild, channel, speaker }) => {
+        if (!expRoleGuilds.includes(guild.id)) {
+            sendEmbedError(channel, 'This guild does not have XP Roles enabled');
+            return;
+        }
+
         const dataMembers = Object.values(dataMembersAll[guild.id])
             .sort(({ exp: exp1 }, { exp: exp2 }) => exp2 - exp1)
             .slice(0, 10);

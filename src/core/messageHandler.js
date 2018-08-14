@@ -61,7 +61,9 @@ const checkCommand = async (msgObjValues) => {
 
     const strArgs = content.substring(usedCmd.length + 1);
 
-    console.log('> Ran command:', command.name, '| With:', strArgs, '| Speaker:', member.user.username);
+    console.log(`> Command: ${command.name}${strArgs.length ? ` | With: ${strArgs}` : ''} | Speaker: ${member.user.username}#${
+        member.user.discriminator
+    }`);
 
     const parsedArgs = parseCommandArgs(command, strArgs, msgObjValues);
 

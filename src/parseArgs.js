@@ -40,7 +40,7 @@ const parseArgCombosInner = (args, numParams) => {
         }
     }
 
-    console.log('parseArgCombos', numParams, args, ':', argCombos);
+    // console.log('parseArgCombos', numParams, args, ':', argCombos);
 
     return argCombos;
 };
@@ -254,7 +254,7 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
                 const existingIndex = best.findIndex(({ failParam: failParamExisting }) => failParamExisting === failParam);
                 if (existingIndex > -1) {
                     const existingData = best[existingIndex];
-                    console.log('COULD SWAP BEST:', 'REMOVED:', existingData, 'ADDED:', best[best.length - 1]);
+                    // console.log('COULD SWAP BEST:', 'REMOVED:', existingData, 'ADDED:', best[best.length - 1]);
                     // if (failArg.length < existingData.failArg.length) {
                     //     best.splice(existingIndex, 1);
                     //     best.push({ args: nowArgs, paramIds, failArg, failParam });

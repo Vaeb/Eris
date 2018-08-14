@@ -7,7 +7,7 @@ import { requiresExpRoles } from '../../permissions';
 
 export default {
     cmds: ['leaderboard', 'xpleaderboard', 'xpboard', 'top', 'xptop', 'scores'],
-    desc: "Check a user's xp",
+    desc: "Check the server's top XP rankings",
     params: [],
 
     // checkPermissions: [requiresExpRoles],

@@ -2,6 +2,7 @@ import { client } from '../setup';
 import { db, fetchProp, dataAll, dataGuilds, dataMembersAll, defaultGuild, defaultMember } from '../db';
 import { newMessage } from './messageHandler';
 import { onError } from '../util';
+import { memberRoleCacheAll } from '../expRoles';
 
 export const ready = client.on('ready', () => {
     console.log(`> Connected as ${client.user.username}`);
@@ -76,6 +77,10 @@ export const guildCreate = client.on('guildCreate', async (guild) => {
 
 export const guildMemberAdd = client.on('guildMemberAdd', async (member) => {
     const { guild } = member;
+
+    if (memberRoleCacheAll[guild.id]) {
+        memberRoleCacheAll[guild.id][member.id] = undefined;
+    }
 
     const dataMembers = fetchProp(dataMembersAll, guild.id);
     fetchProp(dataMembers, member.id, defaultMember(member));

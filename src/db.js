@@ -56,4 +56,10 @@ export const defaultMember = member => ({ guildId: member.guild.id, userId: memb
 
 export const syncDb = (obj, collection, indexes) => {};
 
+// export const setData = ({ collection, guild, field, value }) => {
+//     if (guild) {
+//         db[collection].update({ guildId: guild.id }, { [field]: value });
+//     }
+// };
+
 console.log('Set up database');

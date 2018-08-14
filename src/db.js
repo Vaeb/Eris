@@ -11,7 +11,7 @@ export const dbPromise = new Promise((resolve) => {
     dbPromiseResolve = resolve;
 });
 
-export const db = mongoist('niimp_now');
+export const db = mongoist('eris');
 
 // Emitted if no db connection could be established
 db.on('error', (err) => {

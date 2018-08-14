@@ -26,7 +26,7 @@ export default {
             return;
         }
 
-        await db.guilds.update({ guildId: guild.id }, { $set: { expEnabled: args[0] } }, { upsert: true, multi: false });
+        await db.guilds.updateOne({ guildId: guild.id }, { $set: { expEnabled: args[0] } }, { upsert: true });
         guildData.expEnabled = args[0];
         sendEmbed(channel, 'Guild Settings', args[0] ? 'Enabled xp feature' : 'Disabled xp feature');
     },

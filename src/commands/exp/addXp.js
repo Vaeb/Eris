@@ -40,7 +40,7 @@ export default {
         const newXp = memberData.exp + changeXp;
 
         await db.members
-            .update({ guildId: guild.id, userId: member.id }, { $inc: { exp: changeXp } }, { upsert: false, multi: false })
+            .updateOne({ guildId: guild.id, userId: member.id }, { $inc: { exp: changeXp } }, { upsert: false })
             .catch(err => onError(err, 'Query_ExpAdd'));
 
         memberData.exp = newXp;

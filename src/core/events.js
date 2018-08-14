@@ -39,10 +39,10 @@ export const guildCreate = client.on('guildCreate', async (guild) => {
     const guildData = fetchProp(dataGuilds, guild.id, defaultGuild(guild));
     guildData.guildName = guild.name;
 
-    await db.guilds.update(
+    await db.guilds.updateOne(
         { guildId: guild.id },
         { $set: { guildName: guild.name }, $setOnInsert: defaultGuild(guild) },
-        { upsert: true, multi: false },
+        { upsert: true },
     );
 
     console.log('Synced new guild');
@@ -86,11 +86,7 @@ export const guildMemberAdd = client.on('guildMemberAdd', async (member) => {
     fetchProp(dataMembers, member.id, defaultMember(member));
 
     try {
-        await db.members.update(
-            { guildId: guild.id, userId: member.id },
-            { $setOnInsert: defaultMember(member) },
-            { upsert: true, multi: false },
-        );
+        await db.members.updateOne({ guildId: guild.id, userId: member.id }, { $setOnInsert: defaultMember(member) }, { upsert: true });
     } catch (err) {
         onError(err, 'GuildMemberAdd_Update');
     }

@@ -103,7 +103,7 @@ setInterval(() => {
 
     givenExpNow.forEach(([guildId, userIds]) => {
         db.members
-            .update({ guildId, userId: { $in: userIds } }, { $inc: { exp: expInc } }, { upsert: false, multi: true })
+            .updateMany({ guildId, userId: { $in: userIds } }, { $inc: { exp: expInc } }, { upsert: false })
             .catch(err => onError(err, 'Query_ExpUpdate'));
 
         // console.log(`Incremented xp values by ${expInc} for ${dataGuilds[guildId].guildName} members:`, userIds.join(', '));

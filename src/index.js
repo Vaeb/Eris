@@ -80,11 +80,7 @@ const setupMembers = async () => {
 
             const { guildName, ...defaultGuildObj } = defaultGuild(guild);
 
-            await db.guilds.update(
-                { guildId: guild.id },
-                { $set: { guildName }, $setOnInsert: defaultGuildObj },
-                { upsert: true, multi: false },
-            );
+            await db.guilds.updateOne({ guildId: guild.id }, { $set: { guildName }, $setOnInsert: defaultGuildObj }, { upsert: true });
 
             numSyncedGuilds++;
         }));
@@ -100,10 +96,10 @@ const setupMembers = async () => {
                 await Promise.all(guild.members.map(async (member) => {
                     const defaultMemberObj = defaultMember(member);
 
-                    await db.members.update(
+                    await db.members.updateOne(
                         { guildId: guild.id, userId: member.id },
                         { $setOnInsert: defaultMemberObj },
-                        { upsert: true, multi: false },
+                        { upsert: true },
                     );
 
                     numSyncedMembers++;

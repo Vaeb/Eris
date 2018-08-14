@@ -16,17 +16,13 @@ export default {
         await Promise.all(client.guilds.map(async (guild) => {
             const { guildName, ...defaultGuildObj } = defaultGuild(guild);
 
-            await db.guilds.update(
-                { guildId: guild.id },
-                { $set: { guildName }, $setOnInsert: defaultGuildObj },
-                { upsert: true, multi: false },
-            );
+            await db.guilds.updateOne({ guildId: guild.id }, { $set: { guildName }, $setOnInsert: defaultGuildObj }, { upsert: true });
 
             await Promise.all(Object.entries(defaultGuildObj).map(async ([fieldName, fieldValue]) => {
-                await db.guilds.update(
+                await db.guilds.updateOne(
                     { guildId: guild.id, [fieldName]: { $exists: false } },
                     { $set: { [fieldName]: fieldValue } },
-                    { upsert: false, multi: false },
+                    { upsert: false },
                 );
             }));
 
@@ -44,17 +40,17 @@ export default {
                 await Promise.all(guild.members.map(async (member) => {
                     const defaultMemberObj = defaultMember(member);
 
-                    await db.members.update(
+                    await db.members.updateOne(
                         { guildId: guild.id, userId: member.id },
                         { $setOnInsert: defaultMemberObj },
-                        { upsert: true, multi: false },
+                        { upsert: true },
                     );
 
                     await Promise.all(Object.entries(defaultMemberObj).map(async ([fieldName, fieldValue]) => {
-                        await db.members.update(
+                        await db.members.updateOne(
                             { guildId: guild.id, userId: member.id, [fieldName]: { $exists: false } },
                             { $set: { [fieldName]: fieldValue } },
-                            { upsert: false, multi: false },
+                            { upsert: false },
                         );
                     }));
 

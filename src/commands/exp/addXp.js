@@ -37,7 +37,7 @@ export default {
     checkPermissions: [requiresAdmin],
 
     func: async ({ channel, args: [member, changeXp, reason] }) => {
-        await addXp(member, changeXp);
+        const newXp = await addXp(member, changeXp);
 
         sendEmbed(channel, {
             title: 'Added User XP',

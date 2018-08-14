@@ -35,6 +35,8 @@ export const addXp = async (member, changeXp) => {
     await db.members
         .update({ guildId: guild.id, userId: member.id }, { $inc: { exp: changeXp } }, { upsert: false, multi: false })
         .catch(err => onError(err, 'Query_ExpAdd'));
+
+    return newXp;
 };
 
 const cacheCurrentRole = (guild, member) => {

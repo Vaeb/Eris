@@ -1,5 +1,6 @@
 import { sendEmbed } from '../../util';
 import { dataMembersAll } from '../../db';
+import { requiresExp } from '../../permissions';
 // import { userResolvable } from '../../paramTypes';
 
 export default {
@@ -17,8 +18,16 @@ export default {
     //     },
     // ],
 
+    checkPermissions: [requiresExp],
+
     func: ({ guild, channel, speaker }) => {
         const xp = dataMembersAll[guild.id][speaker.id].exp;
-        sendEmbed(channel, 'User XP', `${speaker} has ${xp} xp!`);
+
+        const dataMembers = Object.values(dataMembersAll[guild.id]).sort(({ exp: exp1 }, { exp: exp2 }) => exp2 - exp1);
+
+        const rankNum = dataMembers.findIndex(({ userId }) => userId === speaker.id) + 1;
+        const totalNum = dataMembers.length;
+
+        sendEmbed(channel, 'User XP', `${speaker} has ${xp} xp (rank #${rankNum}/${totalNum})!`);
     },
 };

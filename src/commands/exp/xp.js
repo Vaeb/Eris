@@ -28,6 +28,6 @@ export default {
         const rankNum = dataMembers.findIndex(({ userId }) => userId === speaker.id) + 1;
         const totalNum = dataMembers.length;
 
-        sendEmbed(channel, 'User XP', `${speaker} has ${xp} xp (rank #${rankNum}/${totalNum})!`);
+        sendEmbed(channel, 'User XP', `${speaker} has ${xp} xp | Rank #${rankNum} / ${totalNum} !`);
     },
 };

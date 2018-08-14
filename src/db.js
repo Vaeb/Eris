@@ -11,7 +11,7 @@ export const dbPromise = new Promise((resolve) => {
     dbPromiseResolve = resolve;
 });
 
-export const db = mongoist('eris', { useNewUrlParser: true });
+export const db = mongoist('mongodb://localhost:27017/eris', { useNewUrlParser: true });
 
 // Emitted if no db connection could be established
 db.on('error', (err) => {

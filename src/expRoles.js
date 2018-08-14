@@ -1,4 +1,5 @@
 import { client, minExp, maxExp, definedGuilds } from './setup';
+import { db, dataMembersAll } from './db';
 import { onError, sendEmbed } from './util';
 // import { fetchProp } from './db';
 
@@ -22,6 +23,19 @@ const expRoleIdsAll = {};
 export const memberRoleCacheAll = {};
 
 export const getRankFromXp = exp => expRoleSettings.find(({ expRequired }) => exp >= expRequired);
+
+export const addXp = async (member, changeXp) => {
+    const { guild } = member;
+
+    const memberData = dataMembersAll[guild.id][member.id];
+    const newXp = memberData.exp + changeXp;
+
+    memberData.exp = newXp;
+
+    await db.members
+        .update({ guildId: guild.id, userId: member.id }, { $inc: { exp: changeXp } }, { upsert: false, multi: false })
+        .catch(err => onError(err, 'Query_ExpAdd'));
+};
 
 const cacheCurrentRole = (guild, member) => {
     const userId = member.id;

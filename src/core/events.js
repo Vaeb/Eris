@@ -1,4 +1,4 @@
-import { client } from '../setup';
+import { client, newUsers, xpCooldown } from '../setup';
 import { db, fetchProp, dataAll, dataGuilds, dataMembersAll, defaultGuild, defaultMember } from '../db';
 import { newMessage } from './messageHandler';
 import { onError } from '../util';
@@ -84,6 +84,12 @@ export const guildMemberAdd = client.on('guildMemberAdd', async (member) => {
 
     const dataMembers = fetchProp(dataMembersAll, guild.id);
     fetchProp(dataMembers, member.id, defaultMember(member));
+
+    newUsers.push(member.id);
+
+    setTimeout(() => {
+        newUsers.splice(newUsers.indexOf(member.id), 1);
+    }, xpCooldown);
 
     try {
         await db.members.update(

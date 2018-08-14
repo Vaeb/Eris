@@ -2,6 +2,7 @@ import { sendEmbed, matchPosInteger, onError } from '../../util';
 import { db, dataMembersAll } from '../../db';
 import { userResolvable } from '../../paramTypes';
 import { requiresAdmin, requiresExp } from '../../permissions';
+import { addXp } from '../../expRoles';
 
 export default {
     cmds: ['addxp', 'giveexp', 'sendxp'],
@@ -35,15 +36,8 @@ export default {
 
     checkPermissions: [requiresAdmin],
 
-    func: async ({ guild, channel, args: [member, changeXp, reason] }) => {
-        const memberData = dataMembersAll[guild.id][member.id];
-        const newXp = memberData.exp + changeXp;
-
-        await db.members
-            .update({ guildId: guild.id, userId: member.id }, { $inc: { exp: changeXp } }, { upsert: false, multi: false })
-            .catch(err => onError(err, 'Query_ExpAdd'));
-
-        memberData.exp = newXp;
+    func: async ({ channel, args: [member, changeXp, reason] }) => {
+        await addXp(member, changeXp);
 
         sendEmbed(channel, {
             title: 'Added User XP',

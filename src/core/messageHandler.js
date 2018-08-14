@@ -1,7 +1,7 @@
-import { commands, prefix, minExp, maxExp } from '../setup';
+import { commands, prefix, minExp, maxExp, xpCooldown, newUsers } from '../setup';
 import { db, fetchProp, dataGuilds, dataMembersAll } from '../db';
 import { onError, sendEmbed, sendEmbedError, getStampFormat, getRandomInt } from '../util';
-import { checkExpRole } from '../expRoles';
+import { checkExpRole, addXp } from '../expRoles';
 import parseCommandArgs from '../parseArgs';
 
 const getValuesFromObj = (obj, props, newProps) => {
@@ -108,9 +108,9 @@ setInterval(() => {
 
         // console.log(`Incremented xp values by ${expInc} for ${dataGuilds[guildId].guildName} members:`, userIds.join(', '));
     });
-}, 1000 * 60);
+}, xpCooldown);
 
-const giveExp = async ({ guild, channel, member, content }) => {
+const giveMessageExp = async ({ guild, channel, member, content }) => {
     if (content.length === 0) return;
 
     if (!dataGuilds[guild.id].expEnabled) {
@@ -140,18 +140,30 @@ export const newMessage = async (msgObj) => {
     const msgObjValues = getValuesFromObj(
         msgObj,
         ['guild', 'channel', 'member', 'author', 'content'],
-        [{ newProp: 'contentLower', fromProps: ['content'], generate: content => content.toLowerCase() }],
+        [
+            { newProp: 'contentLower', fromProps: ['content'], generate: content => content.toLowerCase() },
+            { newProp: 'speaker', fromProps: ['member'], generate: member => member },
+        ],
     );
 
     const {
+        channel,
+        speaker,
         author: { bot },
+        content,
+        contentLower,
     } = msgObjValues;
 
     // console.log(`New message | User: ${msgObjValues.member.user.username} | Content: ${msgObjValues.content}`);
 
     const wasCommand = bot ? false : await checkCommand(msgObjValues);
 
-    if (!wasCommand && !bot) giveExp(msgObjValues);
+    if (!wasCommand && !bot) giveMessageExp(msgObjValues);
+
+    if (/\bwelcome\b/.test(contentLower) && newUsers.some(id => content.includes(id))) {
+        addXp(speaker, 100);
+        sendEmbed(channel, { desc: `${speaker} +100 XP` });
+    }
 };
 
 console.log('Ran messageHandler module');

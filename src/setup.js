@@ -53,6 +53,10 @@ export const vaebId = '107593015014486016';
 export const selfId = '469495067506376704';
 export const defInline = true;
 
+export const xpCooldown = 1000 * 60;
+
 export const noChar = '­';
+
+export const newUsers = [];
 
 console.log('Set up shared data');

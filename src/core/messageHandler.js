@@ -1,22 +1,8 @@
 import { commands, prefix, minExp, maxExp, xpCooldown, newUsers } from '../setup';
 import { db, fetchProp, dataGuilds, dataMembersAll } from '../db';
-import { onError, sendEmbed, sendEmbedError, getStampFormat, getRandomInt } from '../util';
+import { onError, sendEmbed, sendEmbedError, getStampFormat, getRandomInt, getValuesFromObj } from '../util';
 import { checkExpRole, addXp } from '../expRoles';
 import parseCommandArgs from '../parseArgs';
-
-const getValuesFromObj = (obj, props, newProps) => {
-    const newObj = {};
-
-    props.forEach((prop) => {
-        newObj[prop] = obj[prop];
-    });
-
-    newProps.forEach(({ newProp, fromProps, generate }) => {
-        newObj[newProp] = generate(...fromProps.map(prop => obj[prop]));
-    });
-
-    return newObj;
-};
 
 const genCommandError = (channel, commandName) => {
     const commandErrorTitle = `Caught_Command_${commandName.toTitleCase()}`;

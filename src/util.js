@@ -1,6 +1,6 @@
 import { RichEmbed } from 'discord.js';
 import dateformat from 'dateformat';
-import { colors, defInline, vaebId, noChar } from './setup';
+import { colors, defInline, vaebId, noChar, charLimit } from './setup';
 
 String.prototype.toTitleCase = function toTitleCaseFunc() {
     return this.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
@@ -8,20 +8,172 @@ String.prototype.toTitleCase = function toTitleCaseFunc() {
 
 export const getStampFormat = (date = new Date()) => dateformat(date, '| dd/mm/yyyy | HH:MM | ');
 
-export const print = (channel, ...args) => channel.send(args.join(' '), { split: true });
-
-export const printLog = (channel, ...args) => {
-    console.log(...args);
-    if (channel) return print(channel, ...args);
-    return null;
-};
-
 export const onError = (err, context = 'Unspecified', noLog) => {
     const errContext = `[ Caught_${context} ]`;
 
     if (!noLog) return console.log(`[ Caught_${context} ]`, err);
 
     return errContext;
+};
+
+export const escapeRegExp = str => str.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+
+const getMatchesWithBlock = (str, matchChars, blockChars, useInside) => {
+    // Gets all matches of a substring that are in/out of a code block
+    const pattern = new RegExp(escapeRegExp(blockChars), 'g');
+    let result;
+
+    let numMatches = 0;
+    let strPointer = 0;
+    let newStr = '';
+
+    while ((result = pattern.exec(str))) {
+        numMatches++;
+        if (useInside) {
+            if (numMatches % 2 == 1) {
+                // Open block
+                newStr += '.'.repeat(result.index - strPointer);
+                strPointer = result.index;
+            } else {
+                // Close block (Store data)
+                newStr += '.'.repeat(blockChars.length) + str.substring(strPointer + blockChars.length, result.index);
+                strPointer = result.index;
+            }
+        } else if (numMatches % 2 == 1) {
+            // Open block (Store data)
+            newStr += str.substring(strPointer, result.index);
+            strPointer = result.index;
+        } else {
+            // Close block
+            newStr += '.'.repeat(result.index - strPointer + blockChars.length);
+            strPointer = result.index + blockChars.length;
+        }
+    }
+
+    if (useInside) {
+        newStr += '.'.repeat(str.length - strPointer);
+    } else {
+        newStr += str.substring(strPointer);
+    }
+
+    if (newStr.length != str.length) {
+        throw new Error("[E_GetMatchesWithBlock] Failed because the output string didn't match input string length");
+    }
+
+    return newStr.match(new RegExp(escapeRegExp(matchChars), 'g')) || [];
+};
+
+const formatSets = [['___', '__'], ['***', '**', '*'], ['```', '``', '`']];
+
+const splitSets = [
+    // pivot: -1 = Split Start, 0 = Remove, 1 = Split End
+    { chars: '```', pivot: 1 }, // Only applies to end ```
+    { chars: '\n\n', pivot: 0 },
+    { chars: '\n', pivot: 0 },
+    { chars: ' ', pivot: 0 },
+];
+
+const leaveExtra = formatSets.reduce((a, b) => a.concat(b)).length * 2;
+
+export const chunkMessage = (msg) => {
+    const origChunks = [msg];
+    let content = msg;
+    let appendBeginning = [];
+
+    const baseChunkSize = charLimit - leaveExtra;
+
+    for (let i = 0; content; ++i, content = origChunks[i]) {
+        for (let j = 0; j < appendBeginning.length; j++) {
+            content = appendBeginning[j] + content;
+        }
+
+        if (content.length < charLimit) {
+            origChunks[i] = content;
+            break;
+        }
+
+        let chunk = content.substr(0, baseChunkSize);
+        let leftOver;
+
+        appendBeginning = [];
+
+        for (let j = 0; j < splitSets.length; j++) {
+            const splitSet = splitSets[j];
+            const splitChars = splitSet.chars;
+            const splitType = splitSet.pivot;
+
+            let pivotStart = chunk.lastIndexOf(splitChars); // exclusive
+            let pivotEnd = pivotStart; // inclusive
+
+            if (pivotStart == -1) continue;
+
+            if (splitType == 1) {
+                // Split End
+                pivotStart += splitChars.length;
+                pivotEnd = pivotStart;
+            } else if (splitType == 0) {
+                // Remove
+                pivotEnd += splitChars.length;
+            }
+
+            let chunkTemp = chunk.substring(0, pivotStart);
+
+            if (splitChars == '```') {
+                // Has to be closing a block
+                const numSets = (chunkTemp.match(new RegExp(escapeRegExp(splitChars), 'g')) || []).length;
+                if (numSets % 2 == 1) {
+                    if (numSets == 1) continue;
+                    pivotStart = chunk.substring(0, pivotStart - splitChars.length).lastIndexOf(splitChars);
+                    if (pivotStart == -1) continue;
+                    pivotStart += splitChars.length;
+                    pivotEnd = pivotStart;
+                    chunkTemp = chunk.substring(0, pivotStart);
+                }
+            }
+
+            if (chunkTemp.length <= leaveExtra) continue;
+
+            chunk = chunkTemp;
+            leftOver = content.substr(pivotEnd);
+
+            break;
+        }
+
+        if (leftOver == null) {
+            leftOver = content.substr(baseChunkSize);
+        }
+
+        for (let j = 0; j < formatSets.length; j++) {
+            const formatSet = formatSets[j];
+
+            for (let k = 0; k < formatSet.length; k++) {
+                const formatChars = formatSet[k];
+                const numSets = getMatchesWithBlock(chunk, formatChars, '```', false).length; // Should really only be counting matches not inside code blocks
+
+                if (numSets % 2 == 1) {
+                    chunk += formatChars;
+                    appendBeginning.push(formatChars);
+                    break;
+                }
+            }
+        }
+
+        if (chunk.substr(chunk.length - 3, 3) == '```') appendBeginning.push('​\n');
+
+        origChunks[i] = chunk;
+
+        if (leftOver && leftOver.length > 0) origChunks.push(leftOver);
+    }
+
+    return origChunks;
+};
+
+export const print = (channel, ...args) => channel.send(args.join(' '), { split: true }).catch(err => onError(err, 'PRINT'));
+
+export const printLog = (channel, ...args) => {
+    console.log(...args);
+    if (channel) return print(channel, ...args);
+    return null;
 };
 
 export const sendEmbed = (channel, embedData = {}, embedDesc) => {
@@ -70,6 +222,20 @@ export const sendEmbedWarning = (channel, desc) =>
         desc,
         color: colors.yellow,
     });
+
+export const getValuesFromObj = (obj, props = [], newProps = []) => {
+    const newObj = {};
+
+    props.forEach((prop) => {
+        newObj[prop] = obj[prop];
+    });
+
+    newProps.forEach(({ newProp, fromProps, generate }) => {
+        newObj[newProp] = generate(...fromProps.map(prop => obj[prop]));
+    });
+
+    return newObj;
+};
 
 export const globalRegex = (str, rgx) => {
     const out = [];

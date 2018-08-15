@@ -24,21 +24,6 @@ export const memberRoleCacheAll = {};
 
 export const getRankFromXp = exp => expRoleSettings.find(({ expRequired }) => exp >= expRequired);
 
-export const addXp = async (member, changeXp) => {
-    const { guild } = member;
-
-    const memberData = dataMembersAll[guild.id][member.id];
-    const newXp = memberData.exp + changeXp;
-
-    memberData.exp = newXp;
-
-    await db.members
-        .update({ guildId: guild.id, userId: member.id }, { $inc: { exp: changeXp } }, { upsert: false, multi: false })
-        .catch(err => onError(err, 'Query_ExpAdd'));
-
-    return newXp;
-};
-
 const cacheCurrentRole = (guild, member) => {
     const userId = member.id;
 
@@ -101,6 +86,23 @@ const updateExpRole = (guild, member, exp) => {
 export const forceUpdateExpRole = async (guild, member, exp) => {
     cacheCurrentRole(guild, member);
     updateExpRole(guild, member, exp);
+};
+
+export const addXp = async (member, changeXp) => {
+    const { guild } = member;
+
+    const memberData = dataMembersAll[guild.id][member.id];
+    const newXp = memberData.exp + changeXp;
+
+    memberData.exp = newXp;
+
+    await db.members
+        .update({ guildId: guild.id, userId: member.id }, { $inc: { exp: changeXp } }, { upsert: false, multi: false })
+        .catch(err => onError(err, 'Query_ExpAdd'));
+
+    forceUpdateExpRole(guild, member, newXp);
+
+    return newXp;
 };
 
 export const checkExpRole = (channel, member, exp) => {

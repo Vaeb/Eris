@@ -56,6 +56,7 @@ export const defInline = true;
 export const xpCooldown = 1000 * 60;
 
 export const noChar = '­';
+export const charLimit = 1949;
 
 export const newUsers = [];
 

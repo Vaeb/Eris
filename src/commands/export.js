@@ -1,8 +1,6 @@
 import { print, getValuesFromObj, chunkMessage } from '../util';
 import { requiresDev } from '../permissions';
 
-// const parsePermissions = permissions => (permissions ? permissions.bitfield : null);
-
 const parsePermissionOverwrite = (guild, overwrite) =>
     getValuesFromObj(
         overwrite,
@@ -13,16 +11,6 @@ const parsePermissionOverwrite = (guild, overwrite) =>
                 fromProps: ['type', 'id'],
                 generate: (type, typeId) => (type === 'role' ? guild.roles.get(typeId).name : guild.members.get(typeId).id),
             },
-            // {
-            //     newProp: 'allowed',
-            //     fromProps: ['allowed', 'type'],
-            //     generate: parsePermissions,
-            // },
-            // {
-            //     newProp: 'denied',
-            //     fromProps: ['denied'],
-            //     generate: parsePermissions,
-            // },
         ],
     );
 
@@ -36,14 +24,7 @@ const parseChannel = (guild, channel) =>
             {
                 newProp: 'parentName',
                 fromProps: ['parent'],
-                generate: (category) => {
-                    if (!category) return null;
-                    // if (!categories[category.name]) {
-                    //     categories[category.name] = {}; // In case of cycle-overflow
-                    //     categories[category.name] = parseChannel(guild, category, categories);
-                    // }
-                    return category.name;
-                },
+                generate: category => (category ? category.name : null),
             },
             {
                 newProp: 'permissionOverwrites',
@@ -62,8 +43,6 @@ export default {
     checkPermissions: [requiresDev],
 
     func: ({ guild, channel: printChannel }) => {
-        // const categories = {}; // Discord.js currently has no direct way to get guild channel categories except through channel.parent
-
         const guildData = getValuesFromObj(
             guild,
             [
@@ -101,8 +80,6 @@ export default {
                 },
             ],
         );
-
-        // guildData.categories = categories;
 
         const guildDataJSON = JSON.stringify(guildData, null, 2);
 

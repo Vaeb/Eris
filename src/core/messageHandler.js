@@ -122,6 +122,8 @@ const giveMessageExp = async ({ guild, channel, member, content }) => {
     }
 };
 
+const hasWelcomed = [];
+
 export const newMessage = async (msgObj) => {
     const msgObjValues = getValuesFromObj(
         msgObj,
@@ -146,9 +148,13 @@ export const newMessage = async (msgObj) => {
 
     if (!wasCommand && !bot) giveMessageExp(msgObjValues);
 
-    if (/\bwelcome\b/.test(contentLower) && newUsers.some(id => content.includes(id))) {
-        addXp(speaker, 100);
-        sendEmbed(channel, { desc: `${speaker} +100 XP` });
+    if (/\bwelcome\b/.test(contentLower) && newUsers.some(id => content.includes(id)) && !hasWelcomed.includes(speaker.id)) {
+        hasWelcomed.push(speaker.id);
+        setTimeout(() => {
+            hasWelcomed.splice(hasWelcomed.indexOf(speaker.id), 1);
+        }, 1000 * 60 * 60);
+        addXp(speaker, 50);
+        sendEmbed(channel, { desc: `${speaker} +50 XP` });
     }
 };
 

@@ -26,9 +26,9 @@ const parsePermissionOverwrite = (guild, overwrite) =>
         ],
     );
 
-const parseRole = (guild, role) => getValuesFromObj(role, ['color', 'hexColor', 'hoist', 'mentionable', 'name', 'permissions', 'position']);
+const parseRole = (guild, role) => getValuesFromObj(role, ['hexColor', 'hoist', 'mentionable', 'name', 'permissions', 'position']);
 
-const parseChannel = (guild, channel, categories) =>
+const parseChannel = (guild, channel) =>
     getValuesFromObj(
         channel,
         ['name', 'position', 'type'],
@@ -38,10 +38,10 @@ const parseChannel = (guild, channel, categories) =>
                 fromProps: ['parent'],
                 generate: (category) => {
                     if (!category) return null;
-                    if (!categories[category.name]) {
-                        categories[category.name] = {}; // In case of cycle-overflow
-                        categories[category.name] = parseChannel(guild, category, categories);
-                    }
+                    // if (!categories[category.name]) {
+                    //     categories[category.name] = {}; // In case of cycle-overflow
+                    //     categories[category.name] = parseChannel(guild, category, categories);
+                    // }
                     return category.name;
                 },
             },
@@ -62,7 +62,7 @@ export default {
     checkPermissions: [requiresDev],
 
     func: ({ guild, channel: printChannel }) => {
-        const categories = {}; // Discord.js currently has no direct way to get guild channel categories except through channel.parent
+        // const categories = {}; // Discord.js currently has no direct way to get guild channel categories except through channel.parent
 
         const guildData = getValuesFromObj(
             guild,
@@ -97,12 +97,12 @@ export default {
                 {
                     newProp: 'channels',
                     fromProps: ['channels'],
-                    generate: channels => channels.map(channel => parseChannel(guild, channel, categories)),
+                    generate: channels => channels.map(channel => parseChannel(guild, channel)),
                 },
             ],
         );
 
-        guildData.categories = categories;
+        // guildData.categories = categories;
 
         const guildDataJSON = JSON.stringify(guildData, null, 2);
 

@@ -1,7 +1,7 @@
 import { print, getValuesFromObj, chunkMessage } from '../util';
 import { requiresDev } from '../permissions';
 
-const parsePermissions = permissions => (permissions ? permissions.bitfield : null);
+// const parsePermissions = permissions => (permissions ? permissions.bitfield : null);
 
 const parsePermissionOverwrite = (guild, overwrite) =>
     getValuesFromObj(

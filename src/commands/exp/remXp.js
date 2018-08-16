@@ -2,6 +2,7 @@ import { sendEmbed, matchPosInteger, onError } from '../../util';
 import { db, dataMembersAll } from '../../db';
 import { userResolvable } from '../../paramTypes';
 import { requiresAdmin, requiresExp } from '../../permissions';
+import { remXp } from '../../expRoles';
 
 export default {
     cmds: ['remxp', 'removexp', 'takexp', 'delxp'],
@@ -33,17 +34,10 @@ export default {
         },
     ],
 
-    checkPermissions: [requiresAdmin],
+    checkPermissions: [requiresAdmin, requiresExp],
 
-    func: async ({ guild, channel, args: [member, changeXp, reason] }) => {
-        const memberData = dataMembersAll[guild.id][member.id];
-        const newXp = memberData.exp - changeXp;
-
-        await db.members
-            .update({ guildId: guild.id, userId: member.id }, { $inc: { exp: -changeXp } }, { upsert: false, multi: false })
-            .catch(err => onError(err, 'Query_ExpRem'));
-
-        memberData.exp = newXp;
+    func: async ({ channel, args: [member, changeXp, reason] }) => {
+        const newXp = await remXp(member, changeXp);
 
         sendEmbed(channel, {
             title: 'Removed User XP',

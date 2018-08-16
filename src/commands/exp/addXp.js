@@ -34,7 +34,7 @@ export default {
         },
     ],
 
-    checkPermissions: [requiresAdmin],
+    checkPermissions: [requiresAdmin, requiresExp],
 
     func: async ({ channel, args: [member, changeXp, reason] }) => {
         const newXp = await addXp(member, changeXp);

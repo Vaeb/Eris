@@ -105,6 +105,23 @@ export const addXp = async (member, changeXp) => {
     return newXp;
 };
 
+export const remXp = async (member, changeXp) => {
+    const { guild } = member;
+
+    const memberData = dataMembersAll[guild.id][member.id];
+    const newXp = memberData.exp - changeXp;
+
+    memberData.exp = newXp;
+
+    await db.members
+        .update({ guildId: guild.id, userId: member.id }, { $inc: { exp: -changeXp } }, { upsert: false, multi: false })
+        .catch(err => onError(err, 'Query_ExpRem'));
+
+    forceUpdateExpRole(guild, member, newXp);
+
+    return newXp;
+};
+
 export const checkExpRole = (channel, member, exp) => {
     const { guild } = channel;
 

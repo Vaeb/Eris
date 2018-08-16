@@ -1,5 +1,7 @@
 import { RichEmbed } from 'discord.js';
 import dateformat from 'dateformat';
+import request from 'request-promise-native';
+import { pastebinData } from './auth';
 import { colors, defInline, vaebId, noChar, charLimit } from './setup';
 
 String.prototype.toTitleCase = function toTitleCaseFunc() {
@@ -7,6 +9,7 @@ String.prototype.toTitleCase = function toTitleCaseFunc() {
 };
 
 export const getStampFormat = (date = new Date()) => dateformat(date, '| dd/mm/yyyy | HH:MM | ');
+export const getDateString = (date = new Date()) => `${dateformat(date, 'ddd, mmm dS yyyy @ h:MM TT')}`;
 
 export const onError = (err, context = 'Unspecified', noLog) => {
     const errContext = `[ Caught_${context} ]`;
@@ -76,6 +79,8 @@ const splitSets = [
 const leaveExtra = formatSets.reduce((a, b) => a.concat(b)).length * 2;
 
 export const chunkMessage = (msg) => {
+    if (msg.length <= charLimit) return [msg];
+
     const origChunks = [msg];
     let content = msg;
     let appendBeginning = [];
@@ -168,7 +173,14 @@ export const chunkMessage = (msg) => {
     return origChunks;
 };
 
-export const print = (channel, ...args) => channel.send(args.join(' '), { split: true }).catch(err => onError(err, 'PRINT'));
+export const print = async (channel, ...args) =>
+    Promise.all(chunkMessage(args.join(' ')).map(async (msg, index) => {
+        try {
+            await channel.send(msg);
+        } catch (err) {
+            onError(err, `PRINT_C${index}: ${msg}`);
+        }
+    }));
 
 export const printLog = (channel, ...args) => {
     console.log(...args);
@@ -448,4 +460,43 @@ export const strToBoolean = (str) => {
     if (str === 'true' || str === '1' || str === 'on') return true;
     if (str === 'false' || str === '0' || str === 'off') return false;
     return undefined;
+};
+
+const pastebinListings = {
+    public: '0',
+    unlisted: '1',
+    private: '2',
+};
+
+export const pastebinPost = async (name, content, { format = 'text', listing = 'unlisted', expires = 'N' } = {}) => {
+    const userKey = await request({
+        method: 'POST',
+        uri: 'https://pastebin.com/api/api_login.php',
+        formData: {
+            api_dev_key: pastebinData.devKey,
+            api_user_name: pastebinData.username,
+            api_user_password: pastebinData.password,
+        },
+        // json: true,
+    });
+
+    const options = {
+        method: 'POST',
+        uri: 'https://pastebin.com/api/api_post.php',
+        formData: {
+            api_dev_key: pastebinData.devKey,
+            api_option: 'paste',
+            api_paste_code: content,
+            api_user_key: userKey,
+            api_paste_name: name,
+            api_paste_format: format,
+            api_paste_private: pastebinListings[listing],
+            api_paste_expire_date: expires,
+        },
+        // json: true,
+    };
+
+    // console.log('Sending:', options);
+
+    return request(options);
 };

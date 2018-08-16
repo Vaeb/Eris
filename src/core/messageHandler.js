@@ -5,7 +5,7 @@ import { checkExpRole, addXp } from '../expRoles';
 import parseCommandArgs from '../parseArgs';
 
 const genCommandError = (channel, commandName) => {
-    const commandErrorTitle = `Caught_Command_${commandName.toTitleCase()}`;
+    const commandErrorTitle = `Command_${commandName.toTitleCase()}`;
 
     return (err) => {
         onError(err, commandErrorTitle);

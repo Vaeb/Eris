@@ -1,4 +1,4 @@
-import { print, getValuesFromObj, chunkMessage } from '../util';
+import { getValuesFromObj, pastebinPost, getDateString, sendEmbed } from '../util';
 import { requiresDev } from '../permissions';
 
 const parsePermissionOverwrite = (guild, overwrite) =>
@@ -42,7 +42,7 @@ export default {
 
     checkPermissions: [requiresDev],
 
-    func: ({ guild, channel: printChannel }) => {
+    func: async ({ guild, channel: printChannel }) => {
         const guildData = getValuesFromObj(
             guild,
             [
@@ -83,12 +83,9 @@ export default {
 
         const guildDataJSON = JSON.stringify(guildData, null, 2);
 
-        console.log('------------------------\n', guildDataJSON, '\n------------------------');
+        // console.log('------------------------\n', guildDataJSON, '\n------------------------');
 
-        const chunks = chunkMessage(`\`\`\`\n${guildDataJSON}\n\`\`\``);
-
-        for (let i = 0; i < chunks.length; i++) {
-            print(printChannel, chunks[i]);
-        }
+        const pasteURL = await pastebinPost(`${guild.name} Export: ${getDateString()}`, guildDataJSON, { format: 'json' });
+        sendEmbed(printChannel, 'Guild Export', pasteURL);
     },
 };

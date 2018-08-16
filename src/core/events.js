@@ -39,11 +39,15 @@ export const guildCreate = client.on('guildCreate', async (guild) => {
     const guildData = fetchProp(dataGuilds, guild.id, defaultGuild(guild));
     guildData.guildName = guild.name;
 
-    await db.guilds.update(
-        { guildId: guild.id },
-        { $set: { guildName: guild.name }, $setOnInsert: defaultGuild(guild) },
-        { upsert: true, multi: false },
-    );
+    try {
+        await db.guilds.update(
+            { guildId: guild.id },
+            { $set: { guildName: guild.name }, $setOnInsert: defaultGuild(guild) },
+            { upsert: true, multi: false },
+        );
+    } catch (err) {
+        onError(err, 'JoinGuildUpdate');
+    }
 
     console.log('Synced new guild');
 

@@ -19,7 +19,7 @@ const parseRole = (guild, role) => getValuesFromObj(role, ['hexColor', 'hoist', 
 const parseChannel = (guild, channel) =>
     getValuesFromObj(
         channel,
-        ['name', 'position', 'type'],
+        ['name', 'position', 'type', 'nsfw', 'topic', 'bitrate', 'userLimit'],
         [
             {
                 newProp: 'parentName',
@@ -36,8 +36,8 @@ const parseChannel = (guild, channel) =>
     );
 
 export default {
-    cmds: ['export', 'export server', 'export guild'],
-    desc: "Check the server's top XP rankings",
+    cmds: ['export', 'export server', 'export guild', 'upload', 'upload server', 'upload guild'],
+    desc: "Export a server's data",
     params: [],
 
     checkPermissions: [requiresDev],

@@ -1,4 +1,7 @@
+import { requiresStaff } from '../permissions';
+
 const nodeUtil = require('util');
+const request = require('request-promise-native');
 
 const { client, vaebId, selfId } = require('../setup');
 const { print, sendEmbed, sendEmbedError } = require('../util');
@@ -21,7 +24,7 @@ export default {
         },
     ],
 
-    checkPermissions: [requiresDev],
+    checkPermissions: [requiresStaff],
 
     func: async ({
         guild, channel, speaker, command, args,

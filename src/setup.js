@@ -6,8 +6,8 @@ console.log('\n> Scheduler bot starting...\n');
 
 console.logCopy = console.log.bind(console);
 
-console.log = function log(...args) {
-    if (!args.length) return this.logCopy();
+console.log = (...args) => {
+    if (!args.length) return console.logCopy();
 
     const nowDate = new Date();
     // nowDate.setHours(nowDate.getHours() + 1);
@@ -21,7 +21,7 @@ console.log = function log(...args) {
 
     out = out.slice(0, outIndex) + dateformat(nowDate, '| dd/mm/yyyy | HH:MM | ') + out.slice(outIndex);
 
-    return this.logCopy(out);
+    return console.logCopy(out);
 };
 
 export const client = new Client({

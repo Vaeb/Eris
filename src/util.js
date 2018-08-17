@@ -500,3 +500,115 @@ export const pastebinPost = async (name, content, { format = 'text', listing = '
 
     return request(options);
 };
+
+export const getChanges = (str1, str2) => {
+    const len1 = str1.length;
+    const len2 = str2.length;
+    const matrix = []; // len1+1, len2+1
+
+    if (len1 == 0) {
+        return len2;
+    } else if (len2 == 0) {
+        return len1;
+    } else if (str1 == str2) {
+        return 0;
+    }
+
+    for (let i = 0; i <= len1; i++) {
+        matrix[i] = {};
+        matrix[i][0] = i;
+    }
+
+    for (let j = 0; j <= len2; j++) {
+        matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= len1; i++) {
+        for (let j = 1; j <= len2; j++) {
+            let cost = 1;
+
+            if (str1[i - 1] == str2[j - 1]) {
+                cost = 0;
+            }
+
+            matrix[i][j] = Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + cost);
+        }
+    }
+
+    return matrix[len1][len2];
+};
+
+export const simplifyStr = (str) => {
+    str = str.toLowerCase();
+    const strLength = str.length;
+    const midPoint = str.length / 2 + 1;
+    for (let i = 1; i < midPoint; i++) {
+        // Increment for number of characters in the string stopping before the last (no need to check if whole string is a repetition of itself)
+        const sub = str.substr(0, i); // Get the substring from start of length i
+        const num = Math.floor(strLength / i); // Get the number of times i goes into the length of the substring (number of times to repeat sub to make it fit)
+        const repeatedSub = sub.repeat(num); // Repeat the substring floor(num) times
+        if (repeatedSub == str) return [sub, num]; // If repeatedSub is equal to original string, return substring and repetition count
+    }
+    return [str, 1]; // Return substring and repetition count
+};
+
+export const simplifyStrHeavy = (str) => {
+    // Assume str is already lowercase
+    str = str.replace(/\s/g, '');
+    const strLength = str.length;
+    const midPoint = str.length / 2 + 1; // The first int x for which floor(strLength / x) is 1, a.k.a the length when a substring is too large to repeat and fit into str
+    let numCanChange = 0;
+    let nextInc = 2;
+    for (let i = 1; i < midPoint; i++) {
+        // Increments for number of characters in the string stopping before the midpoint
+        const sub = str.substr(0, i); // Get the str substring of length i
+        const num = Math.floor(strLength / i); // Get the number of times i goes into the length of the substring (number of times to repeat sub to make it fit)
+        const repeatedSub = sub.repeat(num); // Repeat the substring num times
+        const nowMaxChanges = Math.min(numCanChange * num, strLength / 2); // Get number of allowed alterations between strings to be classed as similar
+        if (getChanges(repeatedSub, str) <= nowMaxChanges) return [sub, num]; // If repeatedSub is similar to original string, return substring and repetition count
+        if (i >= nextInc) {
+            // Update multiplier for nowMaxChanges when length is large enough
+            numCanChange++;
+            nextInc *= 2;
+        }
+    }
+    return [str, 1]; // Return substring and repetition count
+};
+
+export const similarStrings = (str1, str2) => {
+    str1 = str1.toLowerCase().trim();
+    str2 = str2.toLowerCase().trim();
+
+    // Get number of allowed alterations between strings to be classed as similar
+    let maxChanges = Math.floor(Math.min(Math.max(Math.max(str1.length, str2.length) / 3, Math.abs(str2.length - str1.length)), 6));
+
+    // Check if the original strings are similar (have a number of alterations between them [levenshtein distance] less/equal to maxChanges)
+    if (getChanges(str1, str2) <= maxChanges) return true;
+
+    // Simplify both strings removing repeated similar data
+    [str1] = simplifyStrHeavy(str1); // Reduce similar repeated strings (e.g. dog1dog2dog3 becomes dog1)
+    [str2] = simplifyStrHeavy(str2);
+
+    // Update maxChanges for new string lengths
+    maxChanges = Math.floor(Math.min(Math.max(Math.max(str1.length, str2.length) / 3, Math.abs(str2.length - str1.length)), 6));
+
+    // Check if simplified strings are similar
+    return getChanges(str1, str2) <= maxChanges;
+};
+
+export const similarStringsStrict = (str1, str2) => {
+    str1 = str1.toLowerCase().trim();
+    str2 = str2.toLowerCase().trim();
+
+    if ((str1.length < 4 || str2.length < 4) && (!(str1.length == 3 || str2.length == 3) || (str1.length <= 3 && str2.length <= 3))) {
+        return str1 == str2;
+    }
+
+    // Get number of allowed alterations between strings to be classed as similar
+    const maxChanges = Math.floor(Math.min(Math.max(Math.max(str1.length, str2.length) / 3, Math.abs(str2.length - str1.length)), 6));
+
+    // Check if the original strings are similar (have a number of alterations between them [levenshtein distance] less/equal to maxChanges)
+    if (getChanges(str1, str2) <= maxChanges) return true;
+
+    return false;
+};

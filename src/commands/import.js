@@ -161,7 +161,7 @@ export default {
                 // If it fails, do them one-by-one
                 // guild.setAfkTimeout(guildData.afkTimeout),
                 guild.setExplicitContentFilter(guildData.explicitContentFilter),
-                guild.setIcon(guildData.iconURL),
+                guild.setIcon((guildData.iconURL || '').replace(/\.jpg$/, '.png')),
                 guild.setName(guildData.name),
                 guild.setRegion(guildData.region),
                 guild.setSplash(guildData.splashURL),

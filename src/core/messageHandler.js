@@ -1,6 +1,6 @@
-import { commands, prefix, minExp, maxExp, xpCooldown, newUsers } from '../setup';
+import { vaebId, commands, prefix, minExp, maxExp, xpCooldown, newUsers } from '../setup';
 import { db, fetchProp, dataGuilds, dataMembersAll } from '../db';
-import { onError, sendEmbed, sendEmbedError, getStampFormat, getRandomInt, getValuesFromObj } from '../util';
+import { onError, print, sendEmbed, sendEmbedError, getStampFormat, getRandomInt, getValuesFromObj, similarStringsStrict } from '../util';
 import { checkExpRole, addXp } from '../expRoles';
 import parseCommandArgs from '../parseArgs';
 
@@ -122,6 +122,87 @@ const giveMessageExp = async ({ guild, channel, member, content }) => {
     }
 };
 
+const userStatus = {};
+
+const recentMs = 20000; // What's the maximum elapsed time to count a message as recent?
+const recentMessages = []; // Messages sent in the last recentMs milliseconds
+const numSimilarForSpam = 3;
+const spamMessages = []; // Messages detected as spam in recentMessages stay here for limited period of time
+
+const checkRaid = (guild, channel, speaker, content, contentLower) => {
+    if (content.length < 5) return;
+
+    const speakerId = speaker.id;
+
+    if (userStatus[speakerId] === undefined) userStatus[speakerId] = 0; // Initialise user status
+
+    const stamp = +new Date(); // Get current timestamp
+
+    let numSimilar = 0;
+    const prevSpam = spamMessages.find(spamMsg => similarStringsStrict(content, spamMsg.msg));
+
+    for (let i = recentMessages.length - 1; i >= 0; i--) {
+        const recentMsg = recentMessages[i];
+        if (similarStringsStrict(content, recentMsg.msg)) {
+            numSimilar++;
+        } else if (stamp - recentMsg.stamp > recentMs) {
+            recentMessages.splice(i, 1);
+        }
+    }
+
+    if ((numSimilar >= numSimilarForSpam || prevSpam) && !contentLower.includes('welcome')) {
+        // Is spam
+        if (prevSpam) {
+            // If message is similar to one previously detected as spam
+            prevSpam.initWarn = false;
+            prevSpam.numSince = 0;
+
+            const alreadyIncluded = prevSpam.userIds.includes(speakerId);
+
+            if (!alreadyIncluded || stamp - prevSpam.lastPrint > 2000) {
+                if (!alreadyIncluded) prevSpam.userIds.push(speakerId);
+
+                const oldLength = prevSpam.userIds.length;
+
+                // Wait 3 seconds
+                // If userIds.length is the same or 3 seconds have passed since the last print, then print
+
+                setTimeout(() => {
+                    const stamp2 = +new Date();
+                    if (prevSpam.userIds.length === oldLength || stamp2 - prevSpam.lastPrint > 3000) {
+                        prevSpam.lastPrint = stamp2;
+                        print(channel, `<@${vaebId}> Collected IDs for "${prevSpam.shortMsg}" spammers: [${prevSpam.userIds.join(', ')}]`);
+                    }
+                }, 3000);
+            }
+        } else {
+            // If message was detected as spam based on similar recent messages
+            let shortMsg = content.replace(/(?:\r\n|\r|\n)+/g, ' ');
+            if (shortMsg.length > 75) shortMsg = `${shortMsg.substr(0, 75)}...`;
+
+            spamMessages.push({
+                msg: content,
+                shortMsg,
+                stamp,
+                lastPrint: 0,
+                numSince: 0,
+                initWarn: true,
+                userIds: [speakerId],
+            }); // At some point remove spam messages with really old stamp?
+            // Maybe put all the users who've spammed the message on a warning?
+        }
+    } else {
+        for (let i = spamMessages.length - 1; i >= 0; i--) {
+            // Remove old spam message checks
+            const oldSpam = spamMessages[i];
+            oldSpam.numSince++;
+            if (oldSpam.numSince >= 20) spamMessages.splice(i, 1); // Too old -> Remove
+        }
+    }
+
+    recentMessages.push({ msg: content, stamp });
+};
+
 const hasWelcomed = [];
 
 export const newMessage = async (msgObj) => {
@@ -135,6 +216,7 @@ export const newMessage = async (msgObj) => {
     );
 
     const {
+        guild,
         channel,
         speaker,
         author: { bot },
@@ -146,7 +228,11 @@ export const newMessage = async (msgObj) => {
 
     const wasCommand = bot ? false : await checkCommand(msgObjValues);
 
-    if (!wasCommand && !bot) giveMessageExp(msgObjValues);
+    if (!wasCommand && !bot && content.length > 0 && speaker.id !== vaebId) {
+        checkRaid(guild, channel, speaker, content, contentLower);
+
+        giveMessageExp(msgObjValues);
+    }
 
     if (/\bwelcome\b/.test(contentLower) && newUsers.some(id => content.includes(id)) && !hasWelcomed.includes(speaker.id)) {
         hasWelcomed.push(speaker.id);

@@ -171,7 +171,12 @@ const checkRaid = (guild, channel, speaker, content, contentLower) => {
                     const stamp2 = +new Date();
                     if (prevSpam.userIds.length === oldLength || stamp2 - prevSpam.lastPrint > 3000) {
                         prevSpam.lastPrint = stamp2;
-                        print(channel, `<@${vaebId}> Collected IDs for "${prevSpam.shortMsg}" spammers: [${prevSpam.userIds.join(', ')}]`);
+                        print(
+                            channel,
+                            `<@${vaebId}> Collected IDs for "${prevSpam.shortMsg}" spammers: [${prevSpam.userIds
+                                .map(id => `'${id}'`)
+                                .join(', ')}]`,
+                        );
                     }
                 }, 3000);
             }

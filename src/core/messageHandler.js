@@ -130,7 +130,7 @@ const numSimilarForSpam = 3;
 const spamMessages = []; // Messages detected as spam in recentMessages stay here for limited period of time
 
 const checkRaid = (guild, channel, speaker, content, contentLower) => {
-    if (content.length < 5) return;
+    if (content.length < 5 || contentLower.substr(0, 1) != ';') return;
 
     const speakerId = speaker.id;
 

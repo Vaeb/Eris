@@ -23,15 +23,27 @@ const checkCommand = async (msgObjValues, msgObj) => {
 
     let usedCmd;
 
-    const command = commands.find(({ cmds, noPrefix, minArgs }) => {
-        const hasArgs = minArgs > 0;
+    const command = commands.find(({ cmds, noPrefix, minArgs, params }) => {
+        const hasArgs = params.length > 0;
+        const noArgs = minArgs === 0;
 
         return cmds.some((cmd) => {
-            const checkCmd = (noPrefix ? cmd : prefix + cmd) + (hasArgs ? ' ' : '');
+            if (noArgs) {
+                const checkCmd = noPrefix ? cmd : prefix + cmd;
 
-            if (hasArgs ? contentLower.substr(0, checkCmd.length) === checkCmd : contentLower === checkCmd) {
-                usedCmd = hasArgs ? checkCmd.slice(0, -1) : checkCmd;
-                return true;
+                if (contentLower === checkCmd) {
+                    usedCmd = checkCmd;
+                    return true;
+                }
+            }
+
+            if (hasArgs) {
+                const checkCmd = `${noPrefix ? cmd : prefix + cmd} `;
+
+                if (contentLower.substr(0, checkCmd.length) === checkCmd) {
+                    usedCmd = checkCmd.slice(0, -1);
+                    return true;
+                }
             }
 
             return false;

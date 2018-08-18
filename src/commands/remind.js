@@ -1,3 +1,4 @@
+import dateformat from 'dateformat';
 import { print, sendEmbed, matchPosDecimal, getMostName } from '../util';
 import { userResolvable, timeFormat } from '../paramTypes';
 
@@ -25,6 +26,17 @@ const parseTime = (content) => {
     }
 
     return false;
+};
+
+const runAtDate = (date, func) => {
+    const now = new Date().getTime();
+    const then = date.getTime();
+    const diff = Math.max(then - now, 0);
+    if (diff > 0x7fffffff) {
+        setTimeout(() => {
+            runAtDate(date, func);
+        }, 0x7fffffff);
+    } else setTimeout(func, diff);
 };
 
 export default {
@@ -90,21 +102,7 @@ export default {
         },
     ],
 
-    func: async ({
-        msgObj, channel, speaker, args: [member, conj1, reminder, conj2, time, format], argsData,
-    }) => {
-        console.log(
-            argsData[0].original,
-            argsData[1].original,
-            '|',
-            argsData[2].original,
-            '|',
-            argsData[3].original,
-            '|',
-            argsData[4].original,
-            '|',
-            argsData[5].original,
-        );
+    func: async ({ msgObj, channel, speaker, args: [member, conj1, reminder, conj2, time, format] }) => {
         if (time === undefined) {
             msgObj.reply('How long until you want to be reminded?');
             try {
@@ -128,9 +126,19 @@ export default {
 
         const timeHours = time * format;
 
-        setTimeout(() => {
+        const timeHoursFloor = Math.floor(timeHours);
+        const extraMs = (timeHours - timeHoursFloor) * 60 * 60 * 1000;
+
+        // const newDate = new Date(+new Date() + timeHours * 60 * 60 * 1000);
+
+        let newDate = new Date();
+        newDate.setHours(newDate.getHours() + timeHoursFloor);
+
+        newDate = new Date(+newDate + extraMs);
+
+        runAtDate(newDate, () => {
             print(channel, `${member} Here is ${speakerDesc} reminder${conj1 ? ` ${conj1}` : ''} "${reminder}"`);
-        }, 1000 * 60 * 60 * timeHours);
+        });
 
         sendEmbed(
             channel,

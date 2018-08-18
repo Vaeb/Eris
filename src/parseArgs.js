@@ -51,7 +51,7 @@ const parseArgCombos = (args, paramCombos) =>
         return o;
     }, {});
 
-const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
+const parseCommandArgs = (command, strArgs, { guild, channel, speaker } = {}) => {
     const usedArgs = strArgs.split(/\s/);
 
     const { params, paramCombos, minArgs } = command;
@@ -185,7 +185,7 @@ const parseCommandArgs = (command, strArgs, { guild, channel } = {}) => {
                     }
                 }
 
-                const parsedValue = parse({ str: argValue, guild, channel });
+                const parsedValue = parse({ str: argValue, guild, channel, speaker });
 
                 // console.log('Parsing', argValue, 'as', paramData.name);
 

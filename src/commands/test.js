@@ -29,7 +29,7 @@ export default {
             examples: [['5', '2', '17'], ['5d', '2h', '17m', '10s']],
             optional: true,
             overflowArgs: ({ str }) => {
-                const [fullStr, strTime, strTimeFormat] = str.match(/^(\d*(?:\.\d+)?)([a-zA-Z]+)$/) || [];
+                const [fullStr, strTime, strTimeFormat] = str.match(/^(\d*[.]?\d+)([a-zA-Z]+)$/) || [];
                 if (strTimeFormat) return { type: 1, splitArgs: [strTime, strTimeFormat] };
                 return undefined;
             },

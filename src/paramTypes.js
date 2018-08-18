@@ -9,6 +9,7 @@ export const userResolvable = {
         ['Vaeb#0001', 'Niimp Now#6015'],
     ],
     parse: ({ str, guild }) => getMemberByMixed(str, guild) || isId(str) || undefined,
+    parse2: ({ str, guild, speaker }) => (/^me$/i.test(str.trim()) && speaker) || getMemberByMixed(str, guild) || isId(str) || undefined,
     parseFail: ({ str }) => `User not found from resolvable "${str}"`,
 };
 
@@ -26,5 +27,18 @@ export const timeFormat = {
         if (str == 'month' || str == 'mo') mult = 24 * 30.42;
         if (str == 'year' || str == 'y') mult = 24 * 365.2422;
         return mult;
+    },
+
+    getFormatFromNum: (num) => {
+        const off = 1 / 1e4;
+
+        if (num >= 24 * 365.2422 - off) return 'year';
+        if (num >= 24 * 30.42 - off) return 'month';
+        if (num >= 24 * 7 - off) return 'week';
+        if (num >= 24 - off) return 'day';
+        if (num >= 1 - off) return 'hour';
+        if (num >= 1 / 60 - off) return 'minute';
+        if (num >= 1 / 60 / 60 - off) return 'second';
+        return 'millisecond';
     },
 };

@@ -1,6 +1,6 @@
 import { vaebId, commands, prefix, minExp, maxExp, xpCooldown, newUsers } from '../setup';
 import { db, fetchProp, dataGuilds, dataMembersAll } from '../db';
-import { onError, print, sendEmbed, sendEmbedError, getStampFormat, getRandomInt, getValuesFromObj, similarStringsStrict } from '../util';
+import { onError, print, sendEmbed, sendEmbedError, getStampFormat, getRandomInt, getMsgObjValues, similarStringsStrict } from '../util';
 import { checkExpRole, addXp } from '../expRoles';
 import parseCommandArgs from '../parseArgs';
 
@@ -16,7 +16,7 @@ const genCommandError = (channel, commandName) => {
     };
 };
 
-const checkCommand = async (msgObjValues) => {
+const checkCommand = async (msgObjValues, msgObj) => {
     const {
         guild, channel, member, content, contentLower,
     } = msgObjValues;
@@ -63,7 +63,7 @@ const checkCommand = async (msgObjValues) => {
     try {
         await command.func({
             ...msgObjValues,
-            speaker: member,
+            msgObj,
             command,
             commandError,
             args: parsedArgs.builtArgs || [],
@@ -211,14 +211,7 @@ const checkRaid = (guild, channel, speaker, content, contentLower) => {
 const hasWelcomed = [];
 
 export const newMessage = async (msgObj) => {
-    const msgObjValues = getValuesFromObj(
-        msgObj,
-        ['guild', 'channel', 'member', 'author', 'content'],
-        [
-            { newProp: 'contentLower', fromProps: ['content'], generate: content => content.toLowerCase() },
-            { newProp: 'speaker', fromProps: ['member'], generate: member => member },
-        ],
-    );
+    const msgObjValues = getMsgObjValues(msgObj);
 
     const {
         guild,
@@ -231,7 +224,7 @@ export const newMessage = async (msgObj) => {
 
     // console.log(`New message | User: ${msgObjValues.member.user.username} | Content: ${msgObjValues.content}`);
 
-    const wasCommand = bot ? false : await checkCommand(msgObjValues);
+    const wasCommand = bot ? false : await checkCommand(msgObjValues, msgObj);
 
     if (!wasCommand && !bot && content.length > 0 && speaker.id !== vaebId) {
         checkRaid(guild, channel, speaker, content, contentLower);

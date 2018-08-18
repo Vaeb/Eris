@@ -276,7 +276,7 @@ export const cloneDeepArray = arr => arr.map(val => (isArray(val) ? cloneDeepArr
 
 export const numberIf = str => (str == null ? str : Number(str));
 
-export const matchPosDecimalRegex = /^\d*(?:\.\d+)?$/;
+export const matchPosDecimalRegex = /^\d*[.]?\d+$/;
 export const matchPosIntegerRegex = /^\d+$/;
 
 export const matchPosDecimal = str => numberIf((str.match(matchPosDecimalRegex) || [])[0]);
@@ -461,6 +461,16 @@ export const strToBoolean = (str) => {
     if (str === 'false' || str === '0' || str === 'off') return false;
     return undefined;
 };
+
+export const getMsgObjValues = msgObj =>
+    getValuesFromObj(
+        msgObj,
+        ['guild', 'channel', 'member', 'author', 'content'],
+        [
+            { newProp: 'contentLower', fromProps: ['content'], generate: content => content.toLowerCase() },
+            { newProp: 'speaker', fromProps: ['member'], generate: member => member },
+        ],
+    );
 
 const pastebinListings = {
     public: '0',

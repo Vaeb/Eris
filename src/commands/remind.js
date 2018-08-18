@@ -107,7 +107,7 @@ export default {
             msgObj.reply('How long until you want to be reminded?');
             try {
                 const cancelRegex = /^(?:cancel|nevermind|no?)$/i;
-                const filter = m => cancelRegex.test(m.content) || parseTime(m.content);
+                const filter = m => m.member.id === speaker.id && (cancelRegex.test(m.content) || parseTime(m.content));
                 const collected = await channel.awaitMessages(filter, { maxMatches: 1, time: 16000, errors: ['time'] });
                 const match = collected.first().content;
 

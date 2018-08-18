@@ -11,6 +11,9 @@ const parseTime = (content) => {
 
     if (words.length === 1) {
         // Time+TimeFormat
+        if (/^now$/i.test(words[0])) return [0, 0];
+        if (/^tomorrow$/i.test(words[0])) return [1, timeFormat.parse({ str: 'day' })];
+
         const [fullStr, strTime, strTimeFormat] = words[0].match(/^(\d*[.]?\d+)([a-zA-Z]+)$/) || [];
 
         if (strTimeFormat) return parseTime(`${strTime} ${strTimeFormat}`);
@@ -85,7 +88,7 @@ export default {
                 if (strTimeFormat) return { type: 1, splitArgs: [strTime, strTimeFormat] };
                 return undefined;
             },
-            parse: ({ str }) => matchPosDecimal(str),
+            parse: ({ str }) => (/^(?:now|tomorrow)$/i.test(str.trim()) ? str.trim() : matchPosDecimal(str)),
             parseFail: ({ str }) => `"${str}" is not a positive number`,
             defaultResolve: () => undefined,
         },
@@ -119,6 +122,12 @@ export default {
                 msgObj.reply("Request cancelled (you didn't specify a time).");
                 return;
             }
+        } else if (time === 'now') {
+            time = 0;
+            format = 0;
+        } else if (time === 'tomorrow') {
+            time = 1;
+            format = timeFormat.parse({ str: 'day' });
         }
 
         const formatStr = `${timeFormat.getFormatFromNum(format)}${time === 1 ? '' : 's'}`;

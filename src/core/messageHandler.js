@@ -248,7 +248,7 @@ export const newMessage = async (msgObj) => {
         hasWelcomed.push(speaker.id);
         setTimeout(() => {
             hasWelcomed.splice(hasWelcomed.indexOf(speaker.id), 1);
-        }, 1000 * 60 * 60);
+        }, 1000 * 60 * 45);
         addXp(speaker, 50);
         sendEmbed(channel, { desc: `${speaker} +50 XP` });
     }

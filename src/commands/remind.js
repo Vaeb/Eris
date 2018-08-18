@@ -56,7 +56,7 @@ export default {
             desc: 'Optional word(s) to prefix reminder',
             types: ['Text'],
             examples: [['to', 'about', 'that']],
-            parse: ({ str }) => (/^(?:to|about|that)$/.test(str) ? str : undefined),
+            parse: ({ str }) => (/^(?:to|about|that)$/.test(str.trim()) ? str : undefined),
             optional: true,
         },
         {
@@ -64,14 +64,14 @@ export default {
             desc: 'What to remind the user',
             types: ['Text'],
             examples: [['fix the eris bug']],
-            parse: ({ str }) => (/(?: in|\d*[.]?\d+(?: ?[a-zA-Z]+)?)$/.test(str) ? undefined : str),
+            parse: ({ str }) => (/(?: in|\d*[.]?\d+(?: ?[a-zA-Z]+)?)$/.test(str.trim()) ? undefined : str.trim()),
         },
         {
             name: 'Conjunction 2',
             desc: 'Word(s) to prefix reminder length',
             types: ['Text'],
             examples: [['in']],
-            parse: ({ str }) => (/^(?:in)$/.test(str) ? str : undefined),
+            parse: ({ str }) => (/^(?:in)$/.test(str.trim()) ? str : undefined),
             optional: true,
         },
         {

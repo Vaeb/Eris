@@ -1,10 +1,15 @@
 const nodeUtil = require('util');
 const request = require('request-promise-native');
 
-const { client, vaebId, selfId } = require('../setup');
-const { print, sendEmbed, sendEmbedError } = require('../util');
-const { db, dataGuilds, dataMembersAll } = require('../db');
-const { requiresDev } = require('../permissions');
+const setup = require('../setup');
+const util = require('../util');
+const database = require('../db');
+const permissions = require('../permissions');
+
+const { client, vaebId, selfId } = setup;
+const { print, sendEmbed, sendEmbedError } = util;
+const { db, dataGuilds, dataMembersAll } = database;
+const { requiresDev } = permissions;
 
 /*
     ==eval const client = require('../setup').client; return client.channels.get('455410709631729665').name;
@@ -27,8 +32,6 @@ export default {
     func: async ({
         guild, channel, speaker, command, args,
     }) => {
-        const util = require('../util');
-
         const code = `(async () => {\n${args[0]}\n})()`;
 
         try {

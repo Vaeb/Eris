@@ -1,5 +1,3 @@
-import { requiresStaff } from '../permissions';
-
 const nodeUtil = require('util');
 const request = require('request-promise-native');
 
@@ -24,7 +22,7 @@ export default {
         },
     ],
 
-    checkPermissions: [requiresStaff],
+    checkPermissions: [requiresDev],
 
     func: async ({
         guild, channel, speaker, command, args,

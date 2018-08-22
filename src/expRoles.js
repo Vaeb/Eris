@@ -8,10 +8,10 @@ const baseExp = (minExp + maxExp) / 2;
 export const expRoleGuilds = [definedGuilds.vashta];
 
 export const expRoleSettings = [
-    { name: 'Adamantite', expRequired: baseExp * 13000 }, // 195000
-    { name: 'Orichalcum', expRequired: baseExp * 8000 }, // 120000
-    { name: 'Mythril', expRequired: baseExp * 5000 }, // 75000
-    { name: 'Platinum', expRequired: baseExp * 3000 }, // 45000
+    { name: 'Adamantite', expRequired: baseExp * 42525 }, // 637875
+    { name: 'Orichalcum', expRequired: baseExp * 17010 }, // 255150
+    { name: 'Mythril', expRequired: baseExp * 7560 }, // 113400
+    { name: 'Platinum', expRequired: baseExp * 3600 }, // 54000
     { name: 'Gold', expRequired: baseExp * 1800 }, // 27000
     { name: 'Silver', expRequired: baseExp * 800 }, // 12000
     { name: 'Iron', expRequired: baseExp * 150 }, // 2250

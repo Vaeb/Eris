@@ -319,7 +319,7 @@ export const newMessage = async (msgObj) => {
         const lastMessages = fetchProp(lastMessagesAll, guild.id, {});
         const userChain = fetchProp(lastMessages, speaker.id, {});
 
-        if (userChain.num != null && userChain.content == contentLower) {
+        if (userChain.num != null && similarStringsStrict(userChain.content, contentLower)) {
             userChain.num++;
 
             if (userChain.num > 4) {

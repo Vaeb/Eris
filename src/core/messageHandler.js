@@ -334,13 +334,11 @@ export const newMessage = async (msgObj) => {
                         { name: 'Chain Time', value: formatTime(nowStamp - userChain.beganStamp) },
                     ];
 
-                    console.log('sending', chainFields);
-
                     sendEmbed(monitorChannel, {
                         title: 'Message Chain Detected',
                         desc: 'A user has been sending the same message over a period of time. May be suspicious?',
                         fields: chainFields,
-                        color: 'blue',
+                        color: userChain.num > 14 ? 'red' : 'blue',
                     });
                 }
             }

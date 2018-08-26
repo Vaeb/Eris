@@ -81,6 +81,9 @@ export default {
             ],
         );
 
+        guildData.roles.sort(({ position: a }, { position: b }) => a - b);
+        guildData.channels.sort(({ position: a }, { position: b }) => a - b);
+
         const guildDataJSON = JSON.stringify(guildData, null, 2);
 
         // console.log('------------------------\n', guildDataJSON, '\n------------------------');

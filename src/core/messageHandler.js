@@ -181,7 +181,7 @@ const checkRaid = (guild, channel, speaker, content, contentLower) => {
 
             const alreadyIncluded = prevSpam.userIds.includes(speakerId);
 
-            if (!alreadyIncluded || stamp - prevSpam.lastPrint > 2000) {
+            if (!alreadyIncluded /* || stamp - prevSpam.lastPrint > 2000 */) {
                 if (!alreadyIncluded) prevSpam.userIds.push(speakerId);
 
                 const oldLength = prevSpam.userIds.length;
@@ -191,7 +191,7 @@ const checkRaid = (guild, channel, speaker, content, contentLower) => {
 
                 setTimeout(() => {
                     const stamp2 = +new Date();
-                    if (prevSpam.userIds.length === oldLength || stamp2 - prevSpam.lastPrint > 3000) {
+                    if (prevSpam.userIds.length === oldLength || stamp2 - prevSpam.lastPrint > 2950) {
                         prevSpam.lastPrint = stamp2;
                         print(
                             channel,

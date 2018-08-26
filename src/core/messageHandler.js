@@ -336,7 +336,7 @@ export const newMessage = async (msgObj) => {
 
                     sendEmbed(monitorChannel, {
                         title: 'Message Chain Detected',
-                        desc: 'A user has been sending the same message over a period of time. May be suspicious?',
+                        desc: 'A user has been sending the same message over a period of time. May be suspicious.',
                         fields: chainFields,
                         color: userChain.num > 14 ? 'red' : 'blue',
                     });

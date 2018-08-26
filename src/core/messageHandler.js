@@ -1,6 +1,16 @@
 import { vaebId, commands, prefix, minExp, maxExp, xpCooldown, newUsers } from '../setup';
 import { db, fetchProp, dataGuilds, dataMembersAll } from '../db';
-import { onError, print, sendEmbed, sendEmbedError, getStampFormat, getRandomInt, getMsgObjValues, similarStringsStrict } from '../util';
+import {
+    onError,
+    print,
+    sendEmbed,
+    sendEmbedError,
+    getStampFormat,
+    getRandomInt,
+    getMsgObjValues,
+    similarStringsStrict,
+    formatTime,
+} from '../util';
 import { checkExpRole, addXp } from '../expRoles';
 import parseCommandArgs from '../parseArgs';
 
@@ -109,7 +119,7 @@ setInterval(() => {
 }, xpCooldown);
 
 const giveMessageExp = async ({ guild, channel, member, content }) => {
-    if (content.length === 0) return;
+    if (content.replace(/[^A-Za-z]/g, '').length < 5) return;
 
     if (!dataGuilds[guild.id].expEnabled) {
         // console.log(`Xp disabled for guild ${guild.name}`);
@@ -137,9 +147,9 @@ const giveMessageExp = async ({ guild, channel, member, content }) => {
 const userStatus = {};
 
 const recentMs = 20000; // What's the maximum elapsed time to count a message as recent?
-const recentMessages = []; // Messages sent in the last recentMs milliseconds
+const recentMessagesRaid = []; // Messages sent in the last recentMs milliseconds
 const numSimilarForSpam = 3;
-const spamMessages = []; // Messages detected as spam in recentMessages stay here for limited period of time
+const spamMessages = []; // Messages detected as spam in recentMessagesRaid stay here for limited period of time
 
 const checkRaid = (guild, channel, speaker, content, contentLower) => {
     if (content.length < 5 || contentLower.substr(0, 1) === ';') return;
@@ -153,12 +163,12 @@ const checkRaid = (guild, channel, speaker, content, contentLower) => {
     let numSimilar = 0;
     const prevSpam = spamMessages.find(spamMsg => similarStringsStrict(content, spamMsg.msg));
 
-    for (let i = recentMessages.length - 1; i >= 0; i--) {
-        const recentMsg = recentMessages[i];
+    for (let i = recentMessagesRaid.length - 1; i >= 0; i--) {
+        const recentMsg = recentMessagesRaid[i];
         if (similarStringsStrict(content, recentMsg.msg)) {
             numSimilar++;
         } else if (stamp - recentMsg.stamp > recentMs) {
-            recentMessages.splice(i, 1);
+            recentMessagesRaid.splice(i, 1);
         }
     }
 
@@ -217,7 +227,54 @@ const checkRaid = (guild, channel, speaker, content, contentLower) => {
         }
     }
 
-    recentMessages.push({ msg: content, stamp });
+    recentMessagesRaid.push({ msg: content, stamp });
+};
+
+const recentMessagesAll = {};
+const userMessagesAll = {};
+
+export const delMessage = async (msgObj) => {
+    const msgObjValues = getMsgObjValues(msgObj);
+
+    const {
+        id, guild, channel, speaker, author, content, contentLower, createdTimestamp,
+    } = msgObjValues;
+
+    const nowStamp = +new Date();
+
+    const recentMessages = fetchProp(recentMessagesAll, guild.id, []);
+    const recentMessage = recentMessages.find(data => data.id === id);
+
+    const monitorChannel = guild.channels.find(c => c.name.includes('xp-monitor'));
+
+    const timeElapsed = recentMessage ? Math.min(nowStamp - createdTimestamp, nowStamp - recentMessage.stamp) : nowStamp - createdTimestamp;
+    const timeElapsedFormat = formatTime(timeElapsed);
+
+    if (monitorChannel) {
+        const delData = [
+            { name: 'Username', value: `${author}` },
+            { name: 'Channel', value: `${channel}` },
+            { name: 'Content', value: content },
+            { name: 'Deleted After', value: timeElapsedFormat },
+        ];
+
+        if (recentMessage) {
+            if (timeElapsed < 3000) {
+                sendEmbed(monitorChannel, {
+                    title: 'Quick Deletion',
+                    desc: 'User message was quickly deleted. May be suspicious.',
+                    fields: delData,
+                });
+            }
+        } else {
+            sendEmbed(monitorChannel, {
+                title: 'Immediate Deletion',
+                desc: 'Deleted message was never stored in recent messages. Highly suspicious.',
+                fields: delData,
+                color: 'red',
+            });
+        }
+    }
 };
 
 const hasWelcomed = [];
@@ -235,6 +292,11 @@ export const newMessage = async (msgObj) => {
     } = msgObjValues;
 
     // console.log(`New message | User: ${msgObjValues.member.user.username} | Content: ${msgObjValues.content}`);
+
+    const nowStamp = +new Date();
+
+    const recentMessages = fetchProp(recentMessagesAll, guild.id, []);
+    recentMessages.push({ ...msgObjValues, stamp: nowStamp });
 
     const wasCommand = bot ? false : await checkCommand(msgObjValues, msgObj);
 

@@ -1,6 +1,6 @@
 import { client, newUsers, xpCooldown } from '../setup';
 import { db, fetchProp, dataAll, dataGuilds, dataMembersAll, defaultGuild, defaultMember } from '../db';
-import { newMessage } from './messageHandler';
+import { newMessage, delMessage } from './messageHandler';
 import { onError } from '../util';
 import { memberRoleCacheAll } from '../expRoles';
 
@@ -26,11 +26,6 @@ export const warn = client.on('warn', (warning) => {
 
 export const errorWS = client.on('error', (err) => {
     console.log('> WebSocket error:', err.error);
-});
-
-export const message = client.on('message', (msgObj) => {
-    if (!msgObj.guild || !dataAll._ready) return;
-    newMessage(msgObj);
 });
 
 export const guildCreate = client.on('guildCreate', async (guild) => {
@@ -106,6 +101,16 @@ export const guildMemberAdd = client.on('guildMemberAdd', async (member) => {
     }
 
     console.log(`Synced new ${guild.name} member ${member.user.username} to db`);
+});
+
+export const messageDelete = client.on('messageDelete', (msgObj) => {
+    if (!msgObj.guild || !dataAll._ready) return;
+    delMessage(msgObj);
+});
+
+export const message = client.on('message', (msgObj) => {
+    if (!msgObj.guild || !dataAll._ready) return;
+    newMessage(msgObj);
 });
 
 console.log('Ran events module');

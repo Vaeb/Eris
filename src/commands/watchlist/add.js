@@ -111,7 +111,7 @@ const addSeries = async (channel, searchName, init) => {
                     desc: `Episode ${episode} of ${seriesName} Season ${season} is now out`,
                     color: 'blue',
                 }).then(() => {
-                    print(channel, `{{${seriesName}}}`);
+                    // print(channel, `{{${seriesName}}}`);
                 });
             });
         });

@@ -1,4 +1,4 @@
-import { client, minExp, maxExp, definedGuilds } from './setup';
+import { client, minExp, maxExp, definedGuilds, expEnabled } from './setup';
 import { db, dataMembersAll } from './db';
 import { onError, sendEmbed } from './util';
 // import { fetchProp } from './db';
@@ -41,6 +41,8 @@ const cacheCurrentRole = (guild, member) => {
 };
 
 const updateExpRole = (guild, member, exp) => {
+    if (!expEnabled) return false;
+
     // console.log('checking', member.user.username, exp);
 
     const userId = member.id;

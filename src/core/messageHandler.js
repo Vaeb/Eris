@@ -283,7 +283,7 @@ export const delMessage = async (msgObj) => {
                     color: timeElapsed > 800 ? 'yellow' : 'red',
                 });
             }
-        } else {
+        } else if (timeElapsed < expireRecent - 1500) {
             sendEmbed(monitorChannel, {
                 title: 'Immediate Deletion',
                 desc: 'Deleted message was never stored in recent messages. Highly suspicious.',

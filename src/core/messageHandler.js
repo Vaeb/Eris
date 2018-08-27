@@ -275,7 +275,7 @@ export const delMessage = async (msgObj) => {
         ];
 
         if (recentMessage) {
-            if (timeElapsed < 2250) {
+            if (timeElapsed < 1400) {
                 sendEmbed(monitorChannel, {
                     title: 'Quick Deletion',
                     desc: 'User message was quickly deleted. May be suspicious.',

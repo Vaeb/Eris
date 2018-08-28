@@ -1,4 +1,4 @@
-import { vaebId, commands, prefix, minExp, maxExp, xpCooldown, newUsers } from '../setup';
+import { vaebId, commands, prefix, minExp, maxExp, xpCooldown, newUsers, activity } from '../setup';
 import { db, fetchProp, dataGuilds, dataMembersAll } from '../db';
 import {
     onError,
@@ -266,13 +266,15 @@ export const delMessage = async (msgObj) => {
     const timeElapsed = recentMessage ? Math.min(nowStamp - createdTimestamp, nowStamp - recentMessage.stamp) : nowStamp - createdTimestamp;
     const timeElapsedFormat = formatTime(timeElapsed);
 
-    if (monitorChannel && !content.startsWith(';')) {
+    if (monitorChannel && content.length > 0 && !content.startsWith(';')) {
         const delData = [
             { name: 'Username', value: `${author}` },
             { name: 'Channel', value: `${channel}` },
             { name: 'Content', value: content },
             { name: 'Deleted After', value: timeElapsedFormat },
         ];
+
+        console.log(delData);
 
         if (recentMessage) {
             if (timeElapsed < 1400) {
@@ -364,6 +366,13 @@ export const newMessage = async (msgObj) => {
         checkRaid(guild, channel, speaker, content, contentLower);
 
         giveMessageExp(msgObjValues);
+    }
+
+    const guildActivity = fetchProp(activity, guild.id, {});
+    const memberActivity = guildActivity[speaker.id];
+
+    if (memberActivity && memberActivity.tracking && !wasCommand) {
+        memberActivity.stamps.push(nowStamp);
     }
 
     if (/\bwelcome\b/.test(contentLower) && newUsers.some(id => content.includes(id)) && !hasWelcomed.includes(speaker.id)) {

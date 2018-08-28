@@ -45,6 +45,8 @@ export const colors = {
     yellow: 0xf39c12,
 };
 
+export const activity = {};
+
 export const minExp = 10;
 export const maxExp = 20;
 export const expEnabled = true;

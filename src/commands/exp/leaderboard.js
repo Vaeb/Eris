@@ -1,8 +1,8 @@
-import { noChar } from '../../setup';
+import { noChar, expEnabled } from '../../setup';
 import { sendEmbed, sendEmbedError } from '../../util';
 import { dataMembersAll } from '../../db';
 import { expRoleGuilds, getRankFromXp } from '../../expRoles';
-import { requiresExpRoles } from '../../permissions';
+// import { requiresExpRoles } from '../../permissions';
 // import { userResolvable } from '../../paramTypes';
 
 export default {
@@ -15,8 +15,10 @@ export default {
     func: ({ guild, channel, speaker }) => {
         if (!expRoleGuilds.includes(guild.id)) {
             sendEmbedError(channel, 'This guild does not have XP Roles enabled');
-            return;
+            return undefined;
         }
+
+        if (!expEnabled) return sendEmbed(channel, null, 'XP is temporarily disabled for feature testing');
 
         const dataMembers = Object.values(dataMembersAll[guild.id])
             .sort(({ exp: exp1 }, { exp: exp2 }) => exp2 - exp1)
@@ -34,5 +36,7 @@ export default {
                     }: ${exp} XP (${getRankFromXp(exp).name})`)
                 .join('\n\n')}`,
         );
+
+        return undefined;
     },
 };

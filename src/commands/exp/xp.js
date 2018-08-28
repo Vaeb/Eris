@@ -1,3 +1,4 @@
+import { expEnabled } from '../../setup';
 import { sendEmbed } from '../../util';
 import { dataMembersAll } from '../../db';
 import { requiresExp } from '../../permissions';
@@ -21,6 +22,8 @@ export default {
     checkPermissions: [requiresExp],
 
     func: ({ guild, channel, speaker }) => {
+        if (!expEnabled) return sendEmbed(channel, null, 'XP is temporarily disabled for feature testing');
+
         const xp = dataMembersAll[guild.id][speaker.id].exp;
 
         const dataMembers = Object.values(dataMembersAll[guild.id]).sort(({ exp: exp1 }, { exp: exp2 }) => exp2 - exp1);
@@ -29,5 +32,7 @@ export default {
         const totalNum = dataMembers.length;
 
         sendEmbed(channel, 'User XP', `${speaker} has ${xp} xp | Rank #${rankNum} / ${totalNum} !`);
+
+        return undefined;
     },
 };

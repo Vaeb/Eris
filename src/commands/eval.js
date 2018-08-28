@@ -1,5 +1,6 @@
 const nodeUtil = require('util');
 const request = require('request-promise-native');
+const dateformat = require('dateformat');
 
 const setup = require('../setup');
 const util = require('../util');
@@ -8,7 +9,7 @@ const permissions = require('../permissions');
 
 const { client, vaebId, selfId } = setup;
 const { print, sendEmbed, sendEmbedError } = util;
-const { db, dataGuilds, dataMembersAll } = database;
+const { db, dataGuilds, dataMembersAll, fetchProp } = database;
 const { requiresDev } = permissions;
 
 /*

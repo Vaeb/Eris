@@ -189,6 +189,7 @@ export const printLog = (channel, ...args) => {
 };
 
 export const sendEmbed = (channel, embedData = {}, embedDesc) => {
+    if (embedData === null) embedData = '';
     if (typeof embedData !== 'object') embedData = { title: embedData };
 
     if (embedDesc !== undefined) embedData.desc = embedDesc;

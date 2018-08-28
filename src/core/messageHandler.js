@@ -119,7 +119,7 @@ setInterval(() => {
 }, xpCooldown);
 
 const giveMessageExp = async ({ guild, channel, member, content }) => {
-    if (content.replace(/[^A-Za-z]/g, '').length < 5) return;
+    if (content.replace(/[^A-Za-z]/g, '').length < 4) return;
 
     if (!dataGuilds[guild.id].expEnabled) {
         // console.log(`Xp disabled for guild ${guild.name}`);

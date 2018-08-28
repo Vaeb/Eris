@@ -185,7 +185,7 @@ const parseCommandArgs = (command, strArgs, { guild, channel, speaker } = {}) =>
                     }
                 }
 
-                const parsedValue = parse({ str: argValue, guild, channel, speaker });
+                const parsedValue = parse({ str: argValue.trim(), guild, channel, speaker });
 
                 // console.log('Parsing', argValue, 'as', paramData.name);
 

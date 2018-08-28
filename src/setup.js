@@ -45,7 +45,17 @@ export const colors = {
     yellow: 0xf39c12,
 };
 
-export const activity = {};
+export const activity = {
+    [definedGuilds.vashta]: {
+        '107593015014486016': { tracking: true, stamps: [] },
+        '126710973737336833': { tracking: true, stamps: [] },
+        '416346725515657226': { tracking: true, stamps: [] },
+        '117279827974815745': { tracking: true, stamps: [] },
+        '359479072436256779': { tracking: true, stamps: [] },
+        '289078328835702784': { tracking: true, stamps: [] },
+        '138274235435974656': { tracking: true, stamps: [] },
+    },
+};
 
 export const minExp = 10;
 export const maxExp = 20;

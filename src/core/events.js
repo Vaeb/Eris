@@ -109,7 +109,7 @@ export const messageDelete = client.on('messageDelete', (msgObj) => {
 });
 
 export const message = client.on('message', (msgObj) => {
-    if (!msgObj.guild || !dataAll._ready) return;
+    if (!msgObj.guild || !msgObj.member || !dataAll._ready) return;
     newMessage(msgObj);
 });
 

@@ -2,7 +2,7 @@ import dateformat from 'dateformat';
 
 import { activity } from '../setup';
 import { fetchProp } from '../db';
-import { print, sendEmbed } from '../util';
+import { print, sendEmbed, getMostName } from '../util';
 import { userResolvable } from '../paramTypes';
 import { requiresStaff } from '../permissions';
 
@@ -48,7 +48,7 @@ export default {
             .map(minuteData => `> ${minuteData.date} --- **${minuteData.num} message${minuteData.num === 1 ? '' : 's'}**`)
             .join('\n');
 
-        print(channel, `${member} Activity:\n\n${out}`);
+        print(channel, `**${getMostName(member)} Guild Activity:**\n\n${out}`);
 
         return undefined;
     },

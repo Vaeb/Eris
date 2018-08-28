@@ -362,8 +362,8 @@ export const newMessage = async (msgObj) => {
 
     const wasCommand = bot ? false : await checkCommand(msgObjValues, msgObj);
 
-    if (!wasCommand && !bot && content.length > 0 && speaker.id !== vaebId) {
-        checkRaid(guild, channel, speaker, content, contentLower);
+    if (!wasCommand && !bot && content.length > 0) {
+        if (speaker.id !== vaebId) checkRaid(guild, channel, speaker, content, contentLower);
 
         giveMessageExp(msgObjValues);
     }

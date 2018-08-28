@@ -48,7 +48,7 @@ export default {
             .map(minuteData => `> ${minuteData.date} --- **${minuteData.num} message${minuteData.num === 1 ? '' : 's'}**`)
             .join('\n');
 
-        print(channel, out);
+        print(channel, `${member} Activity:\n\n${out}`);
 
         return undefined;
     },

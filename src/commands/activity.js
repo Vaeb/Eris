@@ -49,7 +49,7 @@ export default {
             if (typeof minuteData === 'object') {
                 groups[i] = `> ${minuteData.date} --- **${minuteData.num} message${minuteData.num === 1 ? '' : 's'}**`;
                 if (i < groups.length - 1 && groups[i + 1].minute - minuteData.minute > 1) {
-                    const minDif = groups[i + 1].minute - minuteData.minute;
+                    const minDif = groups[i + 1].minute - minuteData.minute - 1;
                     let difStr = '-'.repeat(Math.min(minDif, 180));
                     if (minDif > 180) difStr = `**${difStr}**`;
                     groups.splice(i + 1, 0, `> ${difStr}`);

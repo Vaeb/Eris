@@ -31,9 +31,7 @@ export default {
             `${guild.name} XP Ranks`,
             `${noChar}\n${dataMembers
                 .map(({ userId, exp }, index) =>
-                    `[${index + 1}] ${
-                        guild.members.get(userId) ? guild.members.get(userId).displayName : `User Left (${userId})`
-                    }: ${exp} XP (${getRankFromXp(exp).name})`)
+                    `[${index + 1}] ${guild.members.get(userId) || `User Left (${userId})`}: ${exp} XP (${getRankFromXp(exp).name})`)
                 .join('\n\n')}`,
         );
 

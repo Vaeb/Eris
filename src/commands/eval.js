@@ -6,6 +6,7 @@ const setup = require('../setup');
 const util = require('../util');
 const database = require('../db');
 const permissions = require('../permissions');
+const expRoles = require('../expRoles');
 
 const { client, vaebId, selfId } = setup;
 const { print, sendEmbed, sendEmbedError } = util;

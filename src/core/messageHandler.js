@@ -274,7 +274,7 @@ export const delMessage = async (msgObj) => {
             { name: 'Deleted After', value: timeElapsedFormat },
         ];
 
-        console.log(delData);
+        // console.log(delData);
 
         if (recentMessage) {
             if (timeElapsed < 1400) {

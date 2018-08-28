@@ -44,11 +44,20 @@ export default {
             }
         });
 
-        const out = groups
-            .map(minuteData => `> ${minuteData.date} --- **${minuteData.num} message${minuteData.num === 1 ? '' : 's'}**`)
-            .join('\n');
+        for (let i = 0; i < groups.length; i++) {
+            const minuteData = groups[i];
+            if (typeof minuteData === 'object') {
+                groups[i] = `> ${minuteData.date} --- **${minuteData.num} message${minuteData.num === 1 ? '' : 's'}**`;
+                if (i < groups.length - 1 && groups[i + 1].minute - minuteData.minute > 1) {
+                    const minDif = groups[i + 1].minute - minuteData.minute;
+                    let difStr = '-'.repeat(Math.min(minDif, 180));
+                    if (minDif > 180) difStr = `**${difStr}**`;
+                    groups.splice(i + 1, 0, `> ${difStr}`);
+                }
+            }
+        }
 
-        print(channel, `**${getMostName(member)} Guild Activity:**\n\n${out}`);
+        print(channel, `**${getMostName(member)} Guild Activity:**\n\n${groups.join('\n')}`);
 
         return undefined;
     },

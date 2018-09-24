@@ -68,6 +68,8 @@ export const activity = {
         '236912995798614019': { tracking: true, stamps: [] },
         '452531123252363266': { tracking: true, stamps: [] },
         '426720197135695873': { tracking: true, stamps: [] },
+        '429495526396788736': { tracking: true, stamps: [] },
+        '356884812260311052': { tracking: true, stamps: [] },
     },
 };
 

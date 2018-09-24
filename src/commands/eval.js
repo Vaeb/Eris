@@ -9,7 +9,7 @@ const permissions = require('../permissions');
 const expRoles = require('../expRoles');
 
 const { client, vaebId, selfId } = setup;
-const { print, sendEmbed, sendEmbedError } = util;
+const { print, sendEmbed, sendEmbedError, getDateString } = util;
 const { db, dataGuilds, dataMembersAll, fetchProp } = database;
 const { requiresDev } = permissions;
 

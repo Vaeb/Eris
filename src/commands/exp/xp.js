@@ -1,4 +1,4 @@
-import { expEnabled } from '../../setup';
+import { expEnabled, vaebId } from '../../setup';
 import { sendEmbed } from '../../util';
 import { dataMembersAll } from '../../db';
 import { requiresExp } from '../../permissions';
@@ -22,7 +22,7 @@ export default {
     checkPermissions: [requiresExp],
 
     func: ({ guild, channel, speaker }) => {
-        if (!expEnabled) return sendEmbed(channel, null, 'XP is temporarily disabled for feature testing');
+        if (!expEnabled && speaker.id !== vaebId) return sendEmbed(channel, null, 'XP is temporarily disabled for feature testing');
 
         const xp = dataMembersAll[guild.id][speaker.id].exp;
 

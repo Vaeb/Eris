@@ -54,7 +54,7 @@ export const fetchProp = (obj, guildId, defaultVal = {}) => {
 export const defaultGuild = guild => ({ guildId: guild.id, guildName: guild.name, expEnabled: true });
 export const defaultMember = member => ({ guildId: member.guild.id, userId: member.id, exp: 0 });
 
-export const syncDb = (obj, collection, indexes) => {};
+// export const syncDb = (obj, collection, indexes) => {};
 
 // export const setData = ({ collection, guild, field, value }) => {
 //     if (guild) {

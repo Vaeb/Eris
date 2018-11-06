@@ -37,7 +37,11 @@ export default {
     checkPermissions: [requiresAdmin, requiresExp],
 
     func: async ({ channel, args: [member, changeXp, reason] }) => {
+        console.log(member, member.id, changeXp, reason);
+
         const newXp = await remXp(member, changeXp);
+
+        console.log(9999, newXp);
 
         sendEmbed(channel, {
             title: 'Removed User XP',

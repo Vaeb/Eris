@@ -247,16 +247,60 @@ setInterval(() => {
     });
 }, 1000 * 30);
 
-export const delMessage = async (msgObj) => {
-    const msgObjValues = getMsgObjValues(msgObj);
-
+const checkChain = (msgObjValues) => {
     const {
-        id, guild, channel, speaker, author, content, contentLower, createdTimestamp,
+        guild, channel, speaker, content, contentLower, nowStamp,
     } = msgObjValues;
 
-    if (author.bot) return;
+    const recentMessages = fetchProp(recentMessagesAll, guild.id, []);
+    recentMessages.push({ ...msgObjValues, stamp: nowStamp });
 
-    const nowStamp = +new Date();
+    const lastMessages = fetchProp(lastMessagesAll, guild.id, {});
+    const userChain = fetchProp(lastMessages, speaker.id, {});
+
+    if (userChain.num != null && similarStringsStrict(userChain.content, contentLower)) {
+        userChain.num++;
+
+        if (userChain.num > 4) {
+            const monitorChannel = guild.channels.find(c => c.name.includes('xp-monitor'));
+
+            if (monitorChannel) {
+                const chainFields = [
+                    { name: 'Username', value: `${speaker}` },
+                    { name: 'Channel', value: `${channel}` },
+                    { name: 'Content', value: content },
+                    { name: 'Chain Size', value: `${userChain.num} messages` },
+                    { name: 'Chain Time', value: formatTime(nowStamp - userChain.beganStamp) },
+                ];
+
+                if (userChain.num > 5) {
+                    sendEmbed(monitorChannel, {
+                        title: 'Message Chain Growth',
+                        desc: 'A user has been sending the same message repeatedly. May be suspicious.',
+                        fields: chainFields,
+                        color: userChain.num > 14 ? 'red' : 'blue',
+                    });
+                } else {
+                    sendEmbed(monitorChannel, {
+                        title: 'Message Chain Detected',
+                        desc: 'A user has been sending the same message repeatedly. May be suspicious.',
+                        fields: chainFields,
+                        color: 'green',
+                    });
+                }
+            }
+        }
+    } else {
+        userChain.num = 1;
+        userChain.content = contentLower;
+        userChain.beganStamp = nowStamp;
+    }
+};
+
+const checkQuickDel = (msgObjValues) => {
+    const {
+        id, guild, channel, author, content, createdTimestamp, nowStamp,
+    } = msgObjValues;
 
     const recentMessages = fetchProp(recentMessagesAll, guild.id, []);
     const recentMessage = recentMessages.find(data => data.id === id);
@@ -266,34 +310,53 @@ export const delMessage = async (msgObj) => {
     const timeElapsed = recentMessage ? Math.min(nowStamp - createdTimestamp, nowStamp - recentMessage.stamp) : nowStamp - createdTimestamp;
     const timeElapsedFormat = formatTime(timeElapsed);
 
-    if (monitorChannel && content.length > 0 && !content.startsWith(';')) {
-        const delData = [
-            { name: 'Username', value: `${author}` },
-            { name: 'Channel', value: `${channel}` },
-            { name: 'Content', value: content },
-            { name: 'Deleted After', value: timeElapsedFormat },
-        ];
+    if (!monitorChannel || content.length <= 0 || content.startsWith(';')) return;
 
-        // console.log(delData);
+    const delData = [
+        { name: 'Username', value: `${author}` },
+        { name: 'Channel', value: `${channel}` },
+        { name: 'Content', value: content },
+        { name: 'Deleted After', value: timeElapsedFormat },
+    ];
 
-        if (recentMessage) {
-            if (timeElapsed < 1400) {
-                sendEmbed(monitorChannel, {
-                    title: 'Quick Deletion',
-                    desc: 'User message was quickly deleted. May be suspicious.',
-                    fields: delData,
-                    color: timeElapsed > 800 ? 'yellow' : 'red',
-                });
-            }
-        } else if (timeElapsed < expireRecent - 1500) {
+    // console.log(delData);
+
+    if (recentMessage) {
+        if (timeElapsed < 1400) {
             sendEmbed(monitorChannel, {
-                title: 'Immediate Deletion',
-                desc: 'Deleted message was never stored in recent messages. Highly suspicious.',
+                title: 'Quick Deletion',
+                desc: 'User message was quickly deleted. May be suspicious.',
                 fields: delData,
-                color: 'red',
+                color: timeElapsed > 800 ? 'yellow' : 'red',
             });
         }
+    } else if (timeElapsed < expireRecent - 1500) {
+        sendEmbed(monitorChannel, {
+            title: 'Immediate Deletion',
+            desc: 'Deleted message was never stored in recent messages. Highly suspicious.',
+            fields: delData,
+            color: 'red',
+        });
     }
+};
+
+export const delMessage = async (msgObj) => {
+    const msgObjValues = getMsgObjValues(msgObj);
+
+    const {
+        // guild,
+        // channel,
+        // speaker,
+        author: { bot },
+        // content,
+        // contentLower,
+        // createdTimestamp,
+        // nowStamp,
+    } = msgObjValues;
+
+    if (bot) return;
+
+    checkQuickDel(msgObjValues);
 };
 
 const hasWelcomed = [];
@@ -308,57 +371,12 @@ export const newMessage = async (msgObj) => {
         author: { bot },
         content,
         contentLower,
+        nowStamp,
     } = msgObjValues;
 
     // console.log(`New message | User: ${msgObjValues.member.user.username} | Content: ${msgObjValues.content}`);
 
-    const nowStamp = +new Date();
-
-    if (!bot && content.length > 0) {
-        const recentMessages = fetchProp(recentMessagesAll, guild.id, []);
-        recentMessages.push({ ...msgObjValues, stamp: nowStamp });
-
-        const lastMessages = fetchProp(lastMessagesAll, guild.id, {});
-        const userChain = fetchProp(lastMessages, speaker.id, {});
-
-        if (userChain.num != null && similarStringsStrict(userChain.content, contentLower)) {
-            userChain.num++;
-
-            if (userChain.num > 4) {
-                const monitorChannel = guild.channels.find(c => c.name.includes('xp-monitor'));
-
-                if (monitorChannel) {
-                    const chainFields = [
-                        { name: 'Username', value: `${speaker}` },
-                        { name: 'Channel', value: `${channel}` },
-                        { name: 'Content', value: content },
-                        { name: 'Chain Size', value: `${userChain.num} messages` },
-                        { name: 'Chain Time', value: formatTime(nowStamp - userChain.beganStamp) },
-                    ];
-
-                    if (userChain.num > 5) {
-                        sendEmbed(monitorChannel, {
-                            title: 'Message Chain Growth',
-                            desc: 'A user has been sending the same message repeatedly. May be suspicious.',
-                            fields: chainFields,
-                            color: userChain.num > 14 ? 'red' : 'blue',
-                        });
-                    } else {
-                        sendEmbed(monitorChannel, {
-                            title: 'Message Chain Detected',
-                            desc: 'A user has been sending the same message repeatedly. May be suspicious.',
-                            fields: chainFields,
-                            color: 'green',
-                        });
-                    }
-                }
-            }
-        } else {
-            userChain.num = 1;
-            userChain.content = contentLower;
-            userChain.beganStamp = nowStamp;
-        }
-    }
+    if (!bot && content.length > 0) checkChain(msgObjValues);
 
     const wasCommand = bot ? false : await checkCommand(msgObjValues, msgObj);
 

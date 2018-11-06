@@ -6,7 +6,7 @@ let numRestarts = 0;
 if (cluster.isMaster) {
     cluster.fork();
 
-    cluster.on('exit', (worker, code, signal) => {
+    cluster.on('exit', (/* worker, code, signal */) => {
         if (++numRestarts >= maxRestarts) return;
         cluster.fork();
     });

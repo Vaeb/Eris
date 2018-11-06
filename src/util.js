@@ -244,13 +244,14 @@ export const getValuesFromObj = (obj, props = [], newProps = []) => {
     });
 
     newProps.forEach(({ newProp, fromProps, generate }) => {
+        if (!fromProps) fromProps = [];
         newObj[newProp] = generate(...fromProps.map(prop => obj[prop]));
     });
 
     return newObj;
 };
 
-export const round = (num, inc) => (inc == 0 ? num : Math.floor((num / inc) + 0.5) * inc);
+export const round = (num, inc) => (inc == 0 ? num : Math.floor(num / inc + 0.5) * inc);
 
 export const toFixedCut = (num, decimals) => Number(num.toFixed(decimals)).toString();
 
@@ -517,6 +518,7 @@ export const getMsgObjValues = msgObj =>
         [
             { newProp: 'contentLower', fromProps: ['content'], generate: content => content.toLowerCase() },
             { newProp: 'speaker', fromProps: ['member'], generate: member => member },
+            { newProp: 'nowStamp', fromProps: [], generate: () => +new Date() },
         ],
     );
 

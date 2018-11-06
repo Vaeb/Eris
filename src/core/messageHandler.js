@@ -122,10 +122,15 @@ setInterval(() => {
 
 setInterval(() => {
     const oldExpNow = Object.entries(oldExp);
-    oldExp = dataMembersAll;
+    oldExp = {};
 
     oldExpNow.forEach(async ([guildId, memberVals]) => {
         const guild = client.guilds.get(guildId);
+
+        console.log('Calculating XP king for', guildId);
+
+        if (!guild) return;
+
         const kingRole = guild.roles.find(r => r.name.startsWith('XP King'));
 
         if (!kingRole) return;

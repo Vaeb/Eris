@@ -100,7 +100,7 @@ const checkCommand = async (msgObjValues, msgObj) => {
 
 let givenExp = {};
 let oldExp = {};
-const weeklyTimeNum = 1000 * 15;
+const weeklyTimeNum = 1000 * 60 * 60 * 24 * 7;
 
 let expIncrement = getRandomInt(minExp, maxExp);
 

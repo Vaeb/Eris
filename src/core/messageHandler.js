@@ -1,4 +1,4 @@
-import { vaebId, commands, prefix, minExp, maxExp, xpCooldown, newUsers, activity } from '../setup';
+import { client, vaebId, commands, prefix, minExp, maxExp, xpCooldown, newUsers, activity } from '../setup';
 import { db, fetchProp, dataGuilds, dataMembersAll } from '../db';
 import {
     onError,
@@ -99,6 +99,8 @@ const checkCommand = async (msgObjValues, msgObj) => {
 };
 
 let givenExp = {};
+let oldExp = {};
+const weeklyTimeNum = 1000 * 15;
 
 let expIncrement = getRandomInt(minExp, maxExp);
 
@@ -118,6 +120,32 @@ setInterval(() => {
     });
 }, xpCooldown);
 
+setInterval(() => {
+    const oldExpNow = Object.entries(oldExp);
+    oldExp = dataMembersAll;
+
+    oldExpNow.forEach(async ([guildId, memberVals]) => {
+        const guild = client.guilds.get(guildId);
+        const kingRole = guild.roles.find(r => r.name.startsWith('XP King'));
+
+        if (!kingRole) return;
+
+        await Promise.all(kingRole.members.map(async (member) => {
+            await member.removeRole(kingRole);
+        }));
+
+        const king = Object.entries(memberVals)
+            .map(([userId, oldXp]) => [userId, dataMembersAll[guildId][userId].exp - oldXp])
+            .reduce((memberChange1, memberChange2) => (memberChange2[1] > memberChange1[1] ? memberChange2 : memberChange1), [null, -1]);
+
+        const kingMember = guild.members.get(king[0]);
+
+        if (!kingMember) return;
+
+        kingMember.addRole(kingRole).catch(console.error);
+    });
+}, weeklyTimeNum);
+
 const giveMessageExp = async ({ guild, channel, member, content }) => {
     if (content.replace(/[^A-Za-z]/g, '').length < 4) return;
 
@@ -129,9 +157,12 @@ const giveMessageExp = async ({ guild, channel, member, content }) => {
     const newExpUsers = fetchProp(givenExp, guild.id, []);
     const userId = member.id;
 
-    if (!newExpUsers.includes(userId)) {
-        const memberData = dataMembersAll[guild.id][userId];
+    const memberData = dataMembersAll[guild.id][userId];
 
+    const oldExpUsers = fetchProp(oldExp, guild.id, {});
+    fetchProp(oldExpUsers, userId, memberData.exp);
+
+    if (!newExpUsers.includes(userId)) {
         newExpUsers.push(userId);
 
         const newExp = memberData.exp + expIncrement;

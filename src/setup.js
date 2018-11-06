@@ -75,7 +75,7 @@ export const activity = {
 
 export const minExp = 10;
 export const maxExp = 20;
-export const expEnabled = false;
+export const expEnabled = true;
 
 export const prefix = '.';
 export const vaebId = '107593015014486016';

@@ -10,6 +10,7 @@ import {
     getMsgObjValues,
     similarStringsStrict,
     formatTime,
+    runAtDate,
 } from '../util';
 import { checkExpRole, addXp } from '../expRoles';
 import parseCommandArgs from '../parseArgs';
@@ -120,36 +121,48 @@ setInterval(() => {
     });
 }, xpCooldown);
 
-setInterval(() => {
-    const oldExpNow = Object.entries(oldExp);
-    oldExp = {};
+const setKingTimer = () => {
+    const mondayDate = new Date(); // set to next monday
+    mondayDate.setDate(mondayDate.getDate() + ((1 + 7 - mondayDate.getDate()) % 7));
 
-    oldExpNow.forEach(async ([guildId, memberVals]) => {
-        const guild = client.guilds.get(guildId);
+    runAtDate(mondayDate, () => {
+        const oldExpNow = Object.entries(oldExp);
+        oldExp = {};
 
-        console.log('Calculating XP king for', guildId);
+        oldExpNow.forEach(async ([guildId, memberVals]) => {
+            const guild = client.guilds.get(guildId);
 
-        if (!guild) return;
+            console.log('Calculating XP king for', guildId);
 
-        const kingRole = guild.roles.find(r => r.name.startsWith('XP King'));
+            if (!guild) return;
 
-        if (!kingRole) return;
+            const kingRole = guild.roles.find(r => r.name.startsWith('XP King'));
 
-        await Promise.all(kingRole.members.map(async (member) => {
-            await member.removeRole(kingRole);
-        }));
+            if (!kingRole) return;
 
-        const king = Object.entries(memberVals)
-            .map(([userId, oldXp]) => [userId, dataMembersAll[guildId][userId].exp - oldXp])
-            .reduce((memberChange1, memberChange2) => (memberChange2[1] > memberChange1[1] ? memberChange2 : memberChange1), [null, -1]);
+            await Promise.all(kingRole.members.map(async (member) => {
+                await member.removeRole(kingRole);
+            }));
 
-        const kingMember = guild.members.get(king[0]);
+            const king = Object.entries(memberVals)
+                .map(([userId, oldXp]) => [userId, dataMembersAll[guildId][userId].exp - oldXp])
+                .reduce((memberChange1, memberChange2) => (memberChange2[1] > memberChange1[1] ? memberChange2 : memberChange1), [
+                    null,
+                    -1,
+                ]);
 
-        if (!kingMember) return;
+            const kingMember = guild.members.get(king[0]);
 
-        kingMember.addRole(kingRole).catch(console.error);
+            if (!kingMember) return;
+
+            kingMember.addRole(kingRole).catch(console.error);
+        });
+
+        setKingTimer();
     });
-}, weeklyTimeNum);
+};
+
+setKingTimer();
 
 const giveMessageExp = async ({ guild, channel, member, content }) => {
     if (content.replace(/[^A-Za-z]/g, '').length < 4) return;

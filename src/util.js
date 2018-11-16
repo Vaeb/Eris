@@ -561,6 +561,22 @@ export const pastebinPost = async (name, content, { format = 'text', listing = '
     return request(options);
 };
 
+export const runAtDate = (date, func, timerHolder = {}) => {
+    const now = new Date().getTime();
+    const then = date.getTime();
+    const diff = Math.max(then - now, 0);
+
+    if (diff > 0x7fffffff) {
+        timerHolder.timer = setTimeout(() => {
+            runAtDate(date, func, timerHolder);
+        }, 0x7fffffff);
+    } else {
+        timerHolder.timer = setTimeout(func, diff);
+    }
+
+    return timerHolder;
+};
+
 export const getChanges = (str1, str2) => {
     const len1 = str1.length;
     const len2 = str2.length;

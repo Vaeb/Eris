@@ -1,5 +1,5 @@
 import dateformat from 'dateformat';
-import { print, sendEmbed, matchPosDecimal, getMostName } from '../util';
+import { print, sendEmbed, matchPosDecimal, getMostName, runAtDate } from '../util';
 import { userResolvable, timeFormat } from '../paramTypes';
 
 const parseTime = (content) => {
@@ -29,17 +29,6 @@ const parseTime = (content) => {
     }
 
     return false;
-};
-
-const runAtDate = (date, func) => {
-    const now = new Date().getTime();
-    const then = date.getTime();
-    const diff = Math.max(then - now, 0);
-    if (diff > 0x7fffffff) {
-        setTimeout(() => {
-            runAtDate(date, func);
-        }, 0x7fffffff);
-    } else setTimeout(func, diff);
 };
 
 export default {

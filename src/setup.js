@@ -2,7 +2,7 @@ import nodeUtil from 'util';
 import { Client } from 'discord.js';
 import dateformat from 'dateformat';
 
-console.log('\n> Scheduler bot starting...\n');
+console.log('\n> Eris starting...\n');
 
 console.logCopy = console.log.bind(console);
 

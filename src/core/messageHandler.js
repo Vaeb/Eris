@@ -123,8 +123,7 @@ setInterval(() => {
 
 const setKingTimer = () => {
     const mondayDate = new Date(); // set to next monday
-    mondayDate.setDate(mondayDate.getDate() + ((1 + 7 - mondayDate.getDay()) % 7));
-    console.log(mondayDate);
+    mondayDate.setDate(mondayDate.getDate() + ((1 + 7 - mondayDate.getDay()) % 7 || 7));
 
     runAtDate(mondayDate, () => {
         const oldExpNow = Object.entries(oldExp);

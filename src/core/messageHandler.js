@@ -155,6 +155,8 @@ const setKingTimer = () => {
 
             const kingMember = guild.members.get(king[0]);
 
+            console.log(`Giving XP King to ${kingMember ? kingMember.user.username : null} in ${guild.name} (${king})`);
+
             if (!kingMember) return;
 
             kingMember.addRole(kingRole).catch(console.error);

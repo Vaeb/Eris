@@ -9,7 +9,7 @@ const permissions = require('../permissions');
 const expRoles = require('../expRoles');
 
 const { client, vaebId, selfId } = setup;
-const { print, sendEmbed, sendEmbedError, getDateString } = util;
+const { print: printOld, sendEmbed, sendEmbedError, getDateString } = util;
 const { db, dataGuilds, dataMembersAll, fetchProp } = database;
 const { requiresDev } = permissions;
 
@@ -34,6 +34,8 @@ export default {
     func: async ({
         guild, channel, speaker, command, args,
     }) => {
+        const print = (...args2) => printOld(channel, ...args2);
+
         const code = `(async () => {\n${args[0]}\n})()`;
 
         try {

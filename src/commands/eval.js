@@ -47,7 +47,7 @@ export default {
                 outStr.push('```');
                 outStr.push(nodeUtil.format(result));
                 outStr.push('```');
-                print(channel, outStr.join('\n'));
+                printOld(channel, outStr.join('\n'));
             }
         } catch (err) {
             console.log('Eval Error:', err);
@@ -55,7 +55,7 @@ export default {
             outStr.push('```');
             outStr.push(nodeUtil.format(err));
             outStr.push('```');
-            print(channel, outStr.join('\n'));
+            printOld(channel, outStr.join('\n'));
         }
     },
 };

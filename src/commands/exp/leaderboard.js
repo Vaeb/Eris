@@ -13,6 +13,8 @@ export default {
     // checkPermissions: [requiresExpRoles],
 
     func: ({ guild, channel, speaker }) => {
+        const hasRanks = expRoleGuilds.includes(guild.id);
+
         // if (!expRoleGuilds.includes(guild.id)) {
         //     sendEmbedError(channel, 'This guild does not have XP Roles enabled');
         //     return undefined;
@@ -31,7 +33,9 @@ export default {
             `${guild.name} XP Ranks`,
             `${noChar}\n${dataMembers
                 .map(({ userId, exp }, index) =>
-                    `[${index + 1}] ${guild.members.get(userId) || `User Left (${userId})`}: ${exp} XP (${getRankFromXp(exp).name})`)
+                    `[${index + 1}] ${guild.members.get(userId) || `User Left (${userId})`}: ${exp} XP${
+                        hasRanks ? ` (${getRankFromXp(exp).name})` : ''
+                    }`)
                 .join('\n\n')}`,
         );
 

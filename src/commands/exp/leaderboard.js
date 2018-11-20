@@ -1,5 +1,5 @@
 import { noChar, expEnabled } from '../../setup';
-import { sendEmbed, sendEmbedError } from '../../util';
+import { sendEmbed, sendEmbedError, roleRank } from '../../util';
 import { dataMembersAll } from '../../db';
 import { expRoleGuilds, getRankFromXp } from '../../expRoles';
 // import { requiresExpRoles } from '../../permissions';
@@ -33,9 +33,9 @@ export default {
             `${guild.name} XP Ranks`,
             `${noChar}\n${dataMembers
                 .map(({ userId, exp }, index) =>
-                    `[${index + 1}] ${guild.members.get(userId) || `User Left (${userId})`}: ${exp} XP${
-                        hasRanks ? ` (${getRankFromXp(exp).name})` : ''
-                    }`)
+                    `[${index + 1}] ${guild.members.get(userId) || `User Left (${userId})`}: ${exp} XP (${
+                        hasRanks ? getRankFromXp(exp).name : roleRank(guild, userId)
+                    })`)
                 .join('\n\n')}`,
         );
 

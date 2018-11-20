@@ -688,3 +688,23 @@ export const similarStringsStrict = (str1, str2) => {
 
     return false;
 };
+
+export const roleRank = (guild, userResolvable) => {
+    if (!userResolvable) return 'N/A';
+
+    let member = userResolvable;
+
+    if (typeof userResolvable !== 'object') {
+        member = guild.members.get(userResolvable);
+    }
+
+    if (member) {
+        const { highestRole } = member;
+
+        if (highestRole.name !== '@everyone' && highestRole.name !== 'SendMessages') {
+            return highestRole.name;
+        }
+    }
+
+    return 'User';
+};

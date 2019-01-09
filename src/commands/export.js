@@ -9,7 +9,13 @@ const parsePermissionOverwrite = (guild, overwrite) =>
             {
                 newProp: 'name',
                 fromProps: ['type', 'id'],
-                generate: (type, typeId) => (type === 'role' ? guild.roles.get(typeId).name : guild.members.get(typeId).id),
+                generate: (type, typeId) =>
+                    // eslint-disable-next-line no-nested-ternary
+                    (type === 'role'
+                        ? !guild.roles.get(typeId).managed
+                            ? guild.roles.get(typeId).name
+                            : undefined
+                        : guild.members.get(typeId).id),
             },
         ],
     );
@@ -30,7 +36,10 @@ const parseChannel = (guild, channel) =>
                 newProp: 'permissionOverwrites',
                 fromProps: ['permissionOverwrites'],
                 generate: overwrites =>
-                    overwrites.filter(overwrite => overwrite.type === 'role').map(overwrite => parsePermissionOverwrite(guild, overwrite)),
+                    overwrites
+                        .filter(overwrite => overwrite.type === 'role')
+                        .map(overwrite => parsePermissionOverwrite(guild, overwrite))
+                        .filter(overwrite => overwrite.name !== undefined),
             },
         ],
     );

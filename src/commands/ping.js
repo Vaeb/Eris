@@ -8,6 +8,6 @@ export default {
     noPrefix: true,
 
     func: ({ channel }) => {
-        sendEmbed(channel, { desc: 'pong' });
+        // sendEmbed(channel, { desc: 'pong' });
     },
 };

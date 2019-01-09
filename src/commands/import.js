@@ -1,6 +1,7 @@
 import request from 'request-promise-native';
 
-import { sendEmbed, onError } from '../util';
+import { client } from '../setup';
+import { sendEmbed, print, onError } from '../util';
 import { requiresDev } from '../permissions';
 
 const makeOverwrite = (guild, { type, name, allow, deny }) => ({
@@ -19,12 +20,22 @@ export default {
             desc: 'The ID of a paste on Pastebin (can be found in the page URL)',
             types: ['Text'],
             examples: [['GzI0dchF']],
+            parse: ({ str }) => (/\s/.test(str) ? undefined : str),
+        },
+        {
+            name: 'New server',
+            desc: 'Whether to generate a new server or use the current one',
+            types: ['Boolean'],
+            examples: [['True', 'False']],
+            optional: true,
+            parse: ({ str }) => !!/^(?:true|yes|y|new)$/i.test(str),
+            defaultResolve: () => false,
         },
     ],
 
     checkPermissions: [requiresDev],
 
-    func: async ({ guild, channel: printChannel, args: [pasteId] }) => {
+    func: async ({ guild, channel: printChannel, args: [pasteId, isNew] }) => {
         // Note: Role positions will only auto-increment if you manually set the the position property when you create a new role
 
         const guildDataString = await request.get(`https://pastebin.com/raw/${pasteId}`);
@@ -33,7 +44,19 @@ export default {
         guildData.roles.sort(({ position: a }, { position: b }) => b - a);
         guildData.channels.sort(({ position: a }, { position: b }) => a - b);
 
-        console.log('Importing...');
+        // const oldGuild = guild;
+
+        if (isNew) {
+            guild = await client.user.createGuild(guildData.name, guildData.region, guildData.iconURL);
+            guild.channels.forEach((c) => {
+                c.delete().catch(err => console.log('Failed to delete channel', c, err));
+            });
+            guild.roles.filter(r => r.name !== '@everyone').forEach((r) => {
+                r.delete().catch(err => console.log('Failed to delete role', r, err));
+            });
+        }
+
+        console.log('Importing...', isNew);
 
         // Create roles
 
@@ -104,7 +127,15 @@ export default {
                     await guild.createChannel(
                         channelData.name,
                         channelData.type,
-                        channelData.permissionOverwrites.map(overwrite => makeOverwrite(guild, overwrite)),
+                        channelData.permissionOverwrites
+                            .map((overwrite) => {
+                                if (overwrite.type === 'role' && !guild.roles.find(r => r.name === overwrite.name)) {
+                                    console.log('Failed to create channel overwrite (missing role):', overwrite.name, '|', channelData);
+                                    return undefined;
+                                }
+                                return makeOverwrite(guild, overwrite);
+                            })
+                            .filter(o => o !== undefined),
                     );
                 } catch (err) {
                     console.log('Failed to create channel:', err, '|', channelData);
@@ -143,9 +174,15 @@ export default {
                 // eslint-disable-next-line no-await-in-loop
                 if (channelData.userLimit && channel.userLimit !== channelData.userLimit) await channel.setUserLimit(channelData.userLimit);
                 if (channelData.parentName) {
-                    const parentId = guild.channels.find(c => c.name === channelData.parentName).id;
-                    // eslint-disable-next-line no-await-in-loop
-                    if (channel.parentID !== parentId) await channel.setParent(parentId);
+                    const parentChannel = guild.channels.find(c => c.type === 'category' && c.name === channelData.parentName);
+                    if (parentChannel) {
+                        if (channel.parentID !== parentChannel.id) {
+                            // eslint-disable-next-line no-await-in-loop
+                            await channel.setParent(parentChannel.id);
+                        }
+                    } else {
+                        console.log('Parent channel not found', channelData.parentName, parentChannel);
+                    }
                 }
             } catch (err) {
                 console.log('Failed to set channel properties:', err);
@@ -177,6 +214,14 @@ export default {
 
         console.log('Import complete');
 
-        sendEmbed(printChannel, 'Success', 'Imported guild data');
+        sendEmbed(printChannel, 'Success', 'Imported guild data').then(async () => {
+            if (!isNew) return;
+            const firstChannel =
+                guild.channels.find(c => c.type === 'text' && c.name === 'rules') || guild.channels.find(c => c.type === 'text');
+            console.log('Making channel for:', firstChannel.name, 'in', guild.id);
+            const invite = await firstChannel.createInvite({ temporary: false, maxAge: 0, maxUses: 0, unique: false });
+            // const invite = await firstChannel.createInvite();
+            print(printChannel, invite);
+        });
     },
 };

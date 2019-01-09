@@ -412,7 +412,7 @@ export const delMessage = async (msgObj) => {
     checkQuickDel(msgObjValues);
 };
 
-const hasWelcomed = [];
+const hasWelcomed = {};
 
 export const newMessage = async (msgObj) => {
     const msgObjValues = getMsgObjValues(msgObj);
@@ -446,10 +446,12 @@ export const newMessage = async (msgObj) => {
         memberActivity.stamps.push(nowStamp);
     }
 
-    if (/\bwelcome\b/.test(contentLower) && newUsers.some(id => content.includes(id)) && !hasWelcomed.includes(speaker.id)) {
-        hasWelcomed.push(speaker.id);
+    const hasWelcomedGuild = fetchProp(hasWelcomed, guild.id, []);
+
+    if (/\bwelcome\b/.test(contentLower) && newUsers.some(id => content.includes(id)) && !hasWelcomedGuild.includes(speaker.id)) {
+        hasWelcomedGuild.push(speaker.id);
         setTimeout(() => {
-            hasWelcomed.splice(hasWelcomed.indexOf(speaker.id), 1);
+            hasWelcomedGuild.splice(hasWelcomedGuild.indexOf(speaker.id), 1);
         }, 1000 * 60 * 45);
         addXp(speaker, 50);
         sendEmbed(channel, { desc: `${speaker} +50 XP` });

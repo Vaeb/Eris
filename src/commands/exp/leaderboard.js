@@ -1,5 +1,5 @@
 import { noChar, expEnabled } from '../../setup';
-import { sendEmbed, sendEmbedError } from '../../util';
+import { sendEmbed, sendEmbedError, roleRank } from '../../util';
 import { dataMembersAll } from '../../db';
 import { expRoleGuilds, getRankFromXp } from '../../expRoles';
 // import { requiresExpRoles } from '../../permissions';
@@ -13,10 +13,12 @@ export default {
     // checkPermissions: [requiresExpRoles],
 
     func: ({ guild, channel, speaker }) => {
-        if (!expRoleGuilds.includes(guild.id)) {
-            sendEmbedError(channel, 'This guild does not have XP Roles enabled');
-            return undefined;
-        }
+        const hasRanks = expRoleGuilds.includes(guild.id);
+
+        // if (!expRoleGuilds.includes(guild.id)) {
+        //     sendEmbedError(channel, 'This guild does not have XP Roles enabled');
+        //     return undefined;
+        // }
 
         if (!expEnabled) return sendEmbed(channel, null, 'XP is temporarily disabled for feature testing');
 
@@ -31,7 +33,9 @@ export default {
             `${guild.name} XP Ranks`,
             `${noChar}\n${dataMembers
                 .map(({ userId, exp }, index) =>
-                    `[${index + 1}] ${guild.members.get(userId) || `User Left (${userId})`}: ${exp} XP (${getRankFromXp(exp).name})`)
+                    `[${index + 1}] ${guild.members.get(userId) || `User Left (${userId})`}: ${exp} XP (${
+                        hasRanks ? getRankFromXp(exp).name : roleRank(guild, userId)
+                    })`)
                 .join('\n\n')}`,
         );
 

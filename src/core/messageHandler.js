@@ -100,7 +100,7 @@ const checkCommand = async (msgObjValues, msgObj) => {
 };
 
 let givenExp = {};
-let oldExp = {};
+exports.oldExp = {};
 const weeklyTimeNum = 1000 * 60 * 60 * 24 * 7;
 
 let expIncrement = getRandomInt(minExp, maxExp);
@@ -128,8 +128,8 @@ const setKingTimer = () => {
     console.log(mondayDate);
 
     runAtDate(mondayDate, () => {
-        const oldExpNow = Object.entries(oldExp);
-        oldExp = {};
+        const oldExpNow = Object.entries(exports.oldExp);
+        exports.oldExp = {};
 
         oldExpNow.forEach(async ([guildId, memberVals]) => {
             const guild = client.guilds.get(guildId);
@@ -181,7 +181,7 @@ const giveMessageExp = async ({ guild, channel, member, content }) => {
 
     const memberData = dataMembersAll[guild.id][userId];
 
-    const oldExpUsers = fetchProp(oldExp, guild.id, {});
+    const oldExpUsers = fetchProp(exports.oldExp, guild.id, {});
     fetchProp(oldExpUsers, userId, memberData.exp);
 
     if (!newExpUsers.includes(userId)) {

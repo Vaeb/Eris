@@ -32,7 +32,7 @@ export default {
     checkPermissions: [requiresDev],
 
     func: async ({
-        guild, channel, speaker, command, args,
+        msgObj, guild, channel, speaker, command, args,
     }) => {
         const print = (...args2) => printOld(channel, ...args2);
 

@@ -24,5 +24,5 @@ if (cluster.isWorker) {
         console.log('Reason:', reason);
     });
 
-    require('./worker');
+    require('./bot');
 }

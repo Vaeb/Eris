@@ -53,7 +53,7 @@ export default {
             dataMembers = dataMembers.slice(cutStart, cutEnd);
         }
 
-        // console.log('dataMembers', dataMembers);
+        console.log('dataMembers', dataMembers);
 
         sendEmbed(
             channel,
@@ -61,7 +61,7 @@ export default {
             `${noChar}\n${dataMembers
                 .map(({ userId, exp, pos }) =>
                     `[${pos}] ${guild.members.get(userId) || `User Left (${userId})`}: ${exp} XP (${
-                        hasRanks ? getRankFromXp(exp).name : roleRank(guild, userId)
+                        hasRanks ? (getRankFromXp(exp) || { name: 'None' }).name : roleRank(guild, userId)
                     })`)
                 .join('\n\n')}`,
         );

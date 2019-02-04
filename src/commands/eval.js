@@ -7,6 +7,8 @@ const util = require('../util');
 const database = require('../db');
 const permissions = require('../permissions');
 const expRoles = require('../expRoles');
+const events = require('../core/events');
+const messageHandler = require('../core/messageHandler');
 
 const { client, vaebId, selfId } = setup;
 const { print: printOld, sendEmbed, sendEmbedError, getDateString } = util;

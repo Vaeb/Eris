@@ -146,12 +146,18 @@ const setKingTimer = () => {
                 await member.removeRole(kingRole);
             }));
 
-            const king = Object.entries(memberVals)
+            // const king = Object.entries(memberVals)
+            //     .map(([userId, oldXp]) => [userId, dataMembersAll[guildId][userId].exp - oldXp])
+            //     .reduce((memberChange1, memberChange2) => (memberChange2[1] > memberChange1[1] ? memberChange2 : memberChange1), [
+            //         null,
+            //         -1,
+            //     ]);
+
+            const kings = Object.entries(memberVals)
                 .map(([userId, oldXp]) => [userId, dataMembersAll[guildId][userId].exp - oldXp])
-                .reduce((memberChange1, memberChange2) => (memberChange2[1] > memberChange1[1] ? memberChange2 : memberChange1), [
-                    null,
-                    -1,
-                ]);
+                .sort((memberChange1, memberChange2) => memberChange2[1] - memberChange1[1]);
+
+            const king = kings[0];
 
             const kingMember = guild.members.get(king[0]);
 

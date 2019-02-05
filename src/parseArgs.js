@@ -56,7 +56,6 @@ const parseCommandArgs = (command, strArgs, { guild, channel, speaker } = {}) =>
 
     const { params, paramCombos, minArgs } = command;
     const commandName = command.cmds[0];
-    // const commandFormat = command.noPrefix ? commandName : prefix + commandName;
 
     const numUsedArgs = strArgs.length === 0 ? 0 : usedArgs.length;
 
@@ -80,13 +79,6 @@ const parseCommandArgs = (command, strArgs, { guild, channel, speaker } = {}) =>
             desc: failErr,
             footer: `Use "${prefix}syntax ${commandName}" for more information`,
         });
-
-        // sendEmbed(channel, {
-        //     title: 'Command usage error',
-        //     fields: [failErr, `Use "${prefix}syntax ${commandName}" for more information`],
-        // });
-
-        // print(channel, `**[ Command Usage Error ]** ${failErr} | Use "${prefix}syntax ${commandName}" for more information`);
 
         return false;
     }
@@ -282,7 +274,6 @@ const parseCommandArgs = (command, strArgs, { guild, channel, speaker } = {}) =>
         value: params[failParam].parseFail({ str: failArg, param: params[failParam] }),
         inline: false,
     }));
-    // usageFelds.push({ name: `Use "${prefix}syntax ${commandName}" for more information` });
 
     sendEmbed(channel, {
         // title: 'Command usage error',
@@ -293,20 +284,6 @@ const parseCommandArgs = (command, strArgs, { guild, channel, speaker } = {}) =>
         fields: usageFelds,
         footer: `Use "${prefix}syntax ${commandName}" for more information`,
     });
-
-    // print(
-    //     channel,
-    //     `**[ Command Usage Error ]** Your arguments did not match the required parameters for ${commandName} | Use "${prefix}syntax ${commandName}" for more information`,
-    // );
-
-    // sendEmbed(channel, {
-    //     title: 'Command usage error',
-    //     // desc: '',
-    //     fields: [
-    //         `Command arguments did not match the required parameters for "${commandName}" `,
-    //         `Use "${prefix}syntax ${commandName}" for more information`,
-    //     ],
-    // });
 
     return false;
 };

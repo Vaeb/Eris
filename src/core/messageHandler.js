@@ -1,4 +1,4 @@
-import { client, vaebId, commands, prefix, minExp, maxExp, xpCooldown, newUsers, activity } from '../setup';
+import { client, selfId, vaebId, commands, prefix, minExp, maxExp, xpCooldown, newUsers, activity } from '../setup';
 import { db, fetchProp, dataGuilds, dataMembersAll } from '../db';
 import {
     onError,
@@ -28,9 +28,12 @@ const genCommandError = (channel, commandName) => {
 };
 
 const checkCommand = async (msgObjValues, msgObj) => {
-    const {
-        guild, channel, member, content, contentLower,
-    } = msgObjValues;
+    const { guild, channel, member } = msgObjValues;
+
+    let { content } = msgObjValues;
+
+    content = content.replace(new RegExp(`^<@.?${selfId}> *`), prefix);
+    const contentLower = content.toLowerCase();
 
     let usedCmd;
 

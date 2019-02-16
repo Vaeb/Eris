@@ -106,14 +106,16 @@ let givenExp = {};
 exports.oldExp = {};
 const weeklyTimeNum = 1000 * 60 * 60 * 24 * 7;
 
-let expIncrement = getRandomInt(minExp, maxExp);
+// let expIncrement = getRandomInt(minExp, maxExp);
+let expIncrement = getRandomInt(40, 50);
 
 setInterval(() => {
     const givenExpNow = Object.entries(givenExp);
     givenExp = {};
 
     const expInc = expIncrement;
-    expIncrement = getRandomInt(minExp, maxExp);
+    // expIncrement = getRandomInt(minExp, maxExp);
+    expIncrement = getRandomInt(40, 50);
 
     givenExpNow.forEach(([guildId, userIds]) => {
         db.members

@@ -73,8 +73,8 @@ export const activity = {
     },
 };
 
-export const minExp = 40;
-export const maxExp = 50;
+export const minExp = 10;
+export const maxExp = 20;
 export const expEnabled = true;
 
 export const prefix = '.';

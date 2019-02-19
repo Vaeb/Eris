@@ -1,8 +1,8 @@
 import { sendEmbed, matchPosInteger, onError } from '../../util';
 import { db, dataMembersAll } from '../../db';
 import { userResolvable } from '../../paramTypes';
-import { requiresAdmin, requiresExp } from '../../permissions';
 import { remXp } from '../../expRoles';
+import { requiresAdmin, requiresDev, requiresExp } from '../../permissions';
 
 export default {
     cmds: ['remxp', 'removexp', 'takexp', 'delxp'],
@@ -34,7 +34,7 @@ export default {
         },
     ],
 
-    checkPermissions: [requiresAdmin, requiresExp],
+    checkPermissions: [requiresDev, requiresExp],
 
     func: async ({ channel, args: [member, changeXp, reason] }) => {
         console.log(member, member.id, changeXp, reason);

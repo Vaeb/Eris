@@ -103,7 +103,6 @@ const checkCommand = async (msgObjValues, msgObj) => {
 };
 
 let givenExp = {};
-exports.oldExp = {};
 const weeklyTimeNum = 1000 * 60 * 60 * 24 * 7;
 
 let expIncrement = getRandomInt(minExp, maxExp);
@@ -124,11 +123,25 @@ setInterval(() => {
     });
 }, xpCooldown);
 
+/*
+
+    TODO
+
+    -On start, dump XP vals into JSON file (no need to use the db due to rare once-per-week access)
+    -No need for exports.oldExp
+    -Read JSON dump on update
+    -If user isn't in dump, treat initial XP as 0
+
+*/
+
 const setKingTimer = () => {
     const mondayDate = new Date(); // set to next monday
     mondayDate.setDate(mondayDate.getDate() + ((1 + 7 - mondayDate.getDay()) % 7 || 7));
     mondayDate.setHours(0, 0, 1, 0);
     console.log(mondayDate);
+
+    const xpDump = JSON.parse(dataMembersAll);
+    
 
     runAtDate(mondayDate, () => {
         const oldExpNow = Object.entries(exports.oldExp);

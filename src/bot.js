@@ -188,9 +188,7 @@ const init = async (attempts = 1) => {
     if (!dataMembersAll._ready) await dataMembersAll._readyPromise;
     if (!dataGuilds._ready) await dataGuilds._readyPromise;
 
-    console.log('Pre-Ready');
     dataAll.setReady();
-    console.log('Post-Ready');
 
     console.log('Finished syncing data');
 

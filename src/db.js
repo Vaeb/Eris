@@ -20,13 +20,6 @@ dataAll.setReady = () => {
     dataAllResolve();
 };
 
-const tempTest = async () => {
-    if (!dataAll._ready) await dataAll._readyPromise;
-    console.log('temp test ran');
-};
-
-tempTest();
-
 let dbPromiseResolve;
 
 export const dbPromise = new Promise((resolve) => {

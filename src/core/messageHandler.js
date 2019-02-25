@@ -1,4 +1,4 @@
-import { client, selfId, vaebId, commands, prefix, minExp, maxExp, xpCooldown, newUsers, activity } from '../setup';
+import { client, selfId, vaebId, commands, prefix, minExp, maxExp, xpCooldown, resetOldXP, newUsers, activity } from '../setup';
 import { db, dataAll, fetchProp, dataGuilds, dataMembersAll, saveDump, loadDump } from '../db';
 import {
     onError,
@@ -136,17 +136,14 @@ setInterval(() => {
 
 */
 
-const setKingTimer = async () => {
-    console.log('Setting XP King timer');
+const setKingTimer = async (firstCall = false) => {
     if (!dataAll._ready) await dataAll._readyPromise;
-    console.log('Setting XP King timer (ready)');
 
     const mondayDate = new Date(); // set to next monday
     mondayDate.setDate(mondayDate.getDate() + ((1 + 7 - mondayDate.getDay()) % 7 || 7));
     mondayDate.setHours(0, 0, 1, 0);
-    console.log(mondayDate);
 
-    saveDump(dataMembersAll, 'xp_dump.json');
+    if (!firstCall || resetOldXP) saveDump(dataMembersAll, 'xp_dump.json');
 
     runAtDate(mondayDate, async () => {
         let dataMembersAllOld = await loadDump('xp_dump.json');
@@ -186,7 +183,7 @@ const setKingTimer = async () => {
     });
 };
 
-setKingTimer();
+setKingTimer(true);
 
 const giveMessageExp = async ({ guild, channel, member, content }) => {
     if (content.replace(/[^A-Za-z]/g, '').length < 4) return;

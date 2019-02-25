@@ -45,6 +45,23 @@ export const colors = {
     yellow: '#f39c12',
 };
 
+export const minExp = 10;
+export const maxExp = 20;
+export const expEnabled = true;
+
+export const prefix = '.';
+export const vaebId = '107593015014486016';
+export const selfId = '469495067506376704';
+export const defInline = true;
+
+export const xpCooldown = 1000 * 60;
+export const resetOldXP = false;
+
+export const noChar = '­';
+export const charLimit = 1949;
+
+export const newUsers = [];
+
 export const activity = {
     [definedGuilds.vashta]: {
         '107593015014486016': { tracking: true, stamps: [] },
@@ -72,21 +89,5 @@ export const activity = {
         '356884812260311052': { tracking: true, stamps: [] },
     },
 };
-
-export const minExp = 10;
-export const maxExp = 20;
-export const expEnabled = true;
-
-export const prefix = '.';
-export const vaebId = '107593015014486016';
-export const selfId = '469495067506376704';
-export const defInline = true;
-
-export const xpCooldown = 1000 * 60;
-
-export const noChar = '­';
-export const charLimit = 1949;
-
-export const newUsers = [];
 
 console.log('Set up shared data');

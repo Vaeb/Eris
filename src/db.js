@@ -1,13 +1,31 @@
 import mongoist from 'mongoist';
-import fs from 'fs';
-import { promisify } from 'util';
+import { promises as fs } from 'fs';
+// import { promisify } from 'util';
 
-const readDir = promisify(fs.readdir);
+const { readFile, writeFile } = fs;
 
 export const dataAll = {};
 export const dataGuilds = {};
 export const dataMembersAll = {};
 export const watchlist = [];
+
+let dataAllResolve;
+
+dataAll._readyPromise = new Promise((resolve) => {
+    dataAllResolve = resolve;
+});
+
+dataAll.setReady = () => {
+    dataAll._ready = true;
+    dataAllResolve();
+};
+
+const tempTest = async () => {
+    if (!dataAll._ready) await dataAll._readyPromise;
+    console.log('temp test ran');
+};
+
+tempTest();
 
 let dbPromiseResolve;
 
@@ -55,34 +73,30 @@ export const fetchProp = (obj, guildId, defaultVal = {}) => {
     return obj[guildId];
 };
 
-export const saveDump = (obj, name, dir = './data/') => {
+export const saveDump = async (obj, name, dir = './data/') => {
     const dump = JSON.stringify(obj);
 
-    const stream = fs.createWriteStream(dir + name);
-    stream.once('open', () => {
-        stream.write(dump);
-        stream.end();
+    try {
+        await writeFile(dir + name, dump);
         console.log(`Saved ${name} dump`);
-    });
+        return true;
+    } catch (err) {
+        console.log('[ERROR_SaveDump]', err);
+        return false;
+    }
 };
 
 export const loadDump = async (name, dir = './data/') => {
     try {
-        const { err } = await readDir(dir + name);
-        if (err) {
-            throw new Error(err);
-        }
+        const { data } = await readFile(dir + name, 'utf8');
+        if (data.length > 0) return JSON.parse(data);
+
+        return {};
     } catch (err) {
         console.log('[ERROR_LoadDump]', err);
     }
 
-    fs.readFile(dir + name, 'utf-8', (err, data) => {
-        if (err) throw err;
-
-        if (data.length > 0) {
-            const tempObj = JSON.parse(data);
-        }
-    });
+    return {}; // return null;
 };
 
 export const defaultGuild = guild => ({ guildId: guild.id, guildName: guild.name, expEnabled: true });

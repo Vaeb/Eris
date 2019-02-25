@@ -38,11 +38,11 @@ export const definedGuilds = {
 };
 
 export const colors = {
-    green: 0x00e676,
-    blue: 0x00bcd4,
-    pink: 0xd062d8,
-    red: 0xd63031,
-    yellow: 0xf39c12,
+    green: '#00e676',
+    blue: '#00bcd4',
+    pink: '#d062d8',
+    red: '#d63031',
+    yellow: '#f39c12',
 };
 
 export const activity = {

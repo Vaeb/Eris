@@ -200,7 +200,7 @@ export const sendEmbed = (channel, embedData = {}, embedDesc) => {
 
     let color = colorOrig;
 
-    if (typeof color === 'string') ({ [color]: color } = colors);
+    if (typeof color === 'string' && !/\d/.test(color)) ({ [color]: color } = colors);
 
     const embed = new RichEmbed()
         .setTitle(title)

@@ -1,5 +1,5 @@
 import { client, selfId, vaebId, commands, prefix, minExp, maxExp, xpCooldown, newUsers, activity } from '../setup';
-import { db, fetchProp, dataGuilds, dataMembersAll } from '../db';
+import { db, dataAll, fetchProp, dataGuilds, dataMembersAll, saveDump, loadDump } from '../db';
 import {
     onError,
     print,
@@ -136,20 +136,23 @@ setInterval(() => {
 
 */
 
-const setKingTimer = () => {
+const setKingTimer = async () => {
+    console.log('Setting XP King timer');
+    if (!dataAll._ready) await dataAll._readyPromise;
+    console.log('Setting XP King timer (ready)');
+
     const mondayDate = new Date(); // set to next monday
     mondayDate.setDate(mondayDate.getDate() + ((1 + 7 - mondayDate.getDay()) % 7 || 7));
     mondayDate.setHours(0, 0, 1, 0);
     console.log(mondayDate);
 
-    const xpDump = JSON.parse(dataMembersAll);
-    
+    saveDump(dataMembersAll, 'xp_dump.json');
 
-    runAtDate(mondayDate, () => {
-        const oldExpNow = Object.entries(exports.oldExp);
-        exports.oldExp = {};
+    runAtDate(mondayDate, async () => {
+        let dataMembersAllOld = await loadDump('xp_dump.json');
+        dataMembersAllOld = Object.entries(dataMembersAllOld);
 
-        oldExpNow.forEach(async ([guildId, memberVals]) => {
+        dataMembersAllOld.forEach(async ([guildId, memberVals]) => {
             const guild = client.guilds.get(guildId);
 
             console.log('Calculating XP king for', guildId);
@@ -164,15 +167,8 @@ const setKingTimer = () => {
                 await member.removeRole(kingRole);
             }));
 
-            // const king = Object.entries(memberVals)
-            //     .map(([userId, oldXp]) => [userId, dataMembersAll[guildId][userId].exp - oldXp])
-            //     .reduce((memberChange1, memberChange2) => (memberChange2[1] > memberChange1[1] ? memberChange2 : memberChange1), [
-            //         null,
-            //         -1,
-            //     ]);
-
             const kings = Object.entries(memberVals)
-                .map(([userId, oldXp]) => [userId, dataMembersAll[guildId][userId].exp - oldXp])
+                .map(([userId, { exp: oldXp }]) => [userId, dataMembersAll[guildId][userId].exp - oldXp])
                 .sort((memberChange1, memberChange2) => memberChange2[1] - memberChange1[1]);
 
             const king = kings[0];

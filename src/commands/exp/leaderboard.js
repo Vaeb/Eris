@@ -26,11 +26,6 @@ export default {
     func: ({ guild, channel, speaker, args }) => {
         const hasRanks = expRoleGuilds.includes(guild.id);
 
-        // if (!expRoleGuilds.includes(guild.id)) {
-        //     sendEmbedError(channel, 'This guild does not have XP Roles enabled');
-        //     return undefined;
-        // }
-
         if (!expEnabled) return sendEmbed(channel, null, 'XP is temporarily disabled for feature testing');
 
         let dataMembers = Object.values(dataMembersAll[guild.id])
@@ -54,8 +49,6 @@ export default {
 
             dataMembers = dataMembers.slice(cutStart, cutEnd);
         }
-
-        console.log('dataMembers', dataMembers);
 
         sendEmbed(
             channel,

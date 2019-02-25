@@ -81,7 +81,7 @@ export const saveDump = async (obj, name, dir = './src/data/') => {
 
 export const loadDump = async (name, dir = './src/data/') => {
     try {
-        const { data } = await readFile(dir + name, 'utf8');
+        const data = await readFile(dir + name, 'utf8');
         if (data.length > 0) return JSON.parse(data);
 
         return {};

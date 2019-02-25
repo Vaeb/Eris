@@ -73,7 +73,7 @@ export const fetchProp = (obj, guildId, defaultVal = {}) => {
     return obj[guildId];
 };
 
-export const saveDump = async (obj, name, dir = './data/') => {
+export const saveDump = async (obj, name, dir = './src/data/') => {
     const dump = JSON.stringify(obj);
 
     try {
@@ -86,7 +86,7 @@ export const saveDump = async (obj, name, dir = './data/') => {
     }
 };
 
-export const loadDump = async (name, dir = './data/') => {
+export const loadDump = async (name, dir = './src/data/') => {
     try {
         const { data } = await readFile(dir + name, 'utf8');
         if (data.length > 0) return JSON.parse(data);

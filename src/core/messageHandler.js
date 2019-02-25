@@ -201,9 +201,6 @@ const giveMessageExp = async ({ guild, channel, member, content }) => {
 
     const memberData = dataMembersAll[guild.id][userId];
 
-    const oldExpUsers = fetchProp(exports.oldExp, guild.id, {});
-    fetchProp(oldExpUsers, userId, memberData.exp);
-
     if (!newExpUsers.includes(userId)) {
         newExpUsers.push(userId);
 

@@ -1,4 +1,4 @@
-import { RichEmbed } from 'discord.js';
+import { MessageEmbed } from 'discord.js';
 import dateformat from 'dateformat';
 import request from 'request-promise-native';
 import { pastebinData } from './auth';
@@ -202,7 +202,7 @@ export const sendEmbed = (channel, embedData = {}, embedDesc) => {
 
     if (typeof color === 'string' && !/\d/.test(color)) ({ [color]: color } = colors);
 
-    const embed = new RichEmbed()
+    const embed = new MessageEmbed()
         .setTitle(title)
         .setDescription(desc)
         .setFooter(footer)
@@ -699,7 +699,7 @@ export const roleRank = (guild, userResolvable) => {
     }
 
     if (member) {
-        const { highestRole } = member;
+        const highestRole = member.roles.highest;
 
         if (highestRole.name !== '@everyone' && highestRole.name !== 'SendMessages') {
             return highestRole.name;

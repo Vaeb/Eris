@@ -31,7 +31,7 @@ const cacheCurrentRole = (guild, member) => {
     const expRoleIds = expRoleIdsAll[guild.id];
     const memberRoleCache = memberRoleCacheAll[guild.id];
 
-    const memberRoleIds = member.roles.filter(r => expRoleIds[r.id]).map(r => r.id);
+    const memberRoleIds = member.roles.cache.filter(r => expRoleIds[r.id]).map(r => r.id);
 
     if (memberRoleIds.length === 0) {
         memberRoleCache[userId] = -1;
@@ -139,13 +139,13 @@ export const checkExpRole = (channel, member, exp) => {
 };
 
 export const expRolesInit = () => {
-    client.guilds.filter(({ id }) => expRoleGuilds.includes(id)).forEach((guild) => {
+    client.guilds.cache.filter(({ id }) => expRoleGuilds.includes(id)).forEach((guild) => {
         expRolesAll[guild.id] = expRoleSettings.map(o => Object.assign({}, o));
         expRoleIdsAll[guild.id] = {};
         memberRoleCacheAll[guild.id] = {};
 
         expRolesAll[guild.id].forEach((expRoleData, index) => {
-            const role = guild.roles.find(r => r.name === expRoleData.name);
+            const role = guild.roles.cache.find(r => r.name === expRoleData.name);
 
             if (!role) {
                 console.log(`${expRoleData.name} role not found in guild ${guild.name}`);

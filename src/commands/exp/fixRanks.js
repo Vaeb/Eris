@@ -11,11 +11,11 @@ export default {
     checkPermissions: [requiresAdmin],
 
     func: async ({ guild, channel }) => {
-        guild = await guild.fetchMembers();
+        const guildMembers = await guild.members.fetch();
 
         const dataMembers = dataMembersAll[guild.id];
 
-        guild.members.forEach((member) => {
+        guildMembers.forEach((member) => {
             forceUpdateExpRole(guild, member, dataMembers[member.id].exp);
         });
 

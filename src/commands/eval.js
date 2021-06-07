@@ -16,7 +16,7 @@ const { db, dataGuilds, dataMembersAll, fetchProp } = database;
 const { requiresDev } = permissions;
 
 /*
-    ==eval const client = require('../setup').client; return client.channels.get('455410709631729665').name;
+    ==eval const client = require('../setup').client; return client.channels.cache.get('455410709631729665').name;
 */
 
 export default {

@@ -30,7 +30,7 @@ export default {
         const xp = dataMembersAll[guild.id][member.id].exp;
 
         const dataMembers = Object.values(dataMembersAll[guild.id])
-            .filter(({ userId }) => guild.members.get(userId) != null)
+            .filter(({ userId }) => guild.members.cache.get(userId) != null)
             .sort(({ exp: exp1 }, { exp: exp2 }) => exp2 - exp1);
 
         const rankNum = dataMembers.findIndex(({ userId }) => userId === member.id) + 1;

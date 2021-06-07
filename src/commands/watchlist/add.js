@@ -6,8 +6,8 @@ import { client } from '../../setup';
 import { db, watchlist } from '../../db';
 import { print, sendEmbed, sendEmbedError, sendEmbedWarning } from '../../util';
 
-const dumpChannel = client.channels.get('245323882360209408');
-const tvChannel = client.channels.get('455410709631729665');
+const dumpChannel = client.channels.cache.get('245323882360209408');
+const tvChannel = client.channels.cache.get('455410709631729665');
 
 // const { username, userkey, apikey } = theTvDb;
 // const jwtToken = '123';

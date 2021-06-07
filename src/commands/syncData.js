@@ -13,7 +13,7 @@ export default {
     func: async ({ channel }) => {
         console.log('> Syncing guilds');
 
-        await Promise.all(client.guilds.map(async (guild) => {
+        await Promise.all(client.guilds.cache.map(async (guild) => {
             const { guildName, ...defaultGuildObj } = defaultGuild(guild);
 
             await db.guilds.update(
@@ -35,13 +35,13 @@ export default {
 
         console.log('> Syncing members');
 
-        await Promise.all(client.guilds.map(async (guildOrig) => {
+        await Promise.all(client.guilds.cache.map(async (guild) => {
             try {
-                const guild = await guildOrig.fetchMembers();
+                const guildMembers = await guild.members.fetch();
 
                 // const dataMembers = fetchProp(dataMembersAll, guild.id);
 
-                await Promise.all(guild.members.map(async (member) => {
+                await Promise.all(guildMembers.map(async (member) => {
                     const defaultMemberObj = defaultMember(member);
 
                     await db.members.update(

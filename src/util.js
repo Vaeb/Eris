@@ -388,7 +388,7 @@ export const getMemberById = (id, guild) => {
 
     if (id == null || id.length < 1) return null;
 
-    return guild.members.get(id);
+    return guild.members.cache.get(id);
 };
 
 export const getMemberByName = (name, guild) => {
@@ -398,7 +398,7 @@ export const getMemberByName = (name, guild) => {
     const nameDiscrim = getDiscriminatorFromName(name);
     if (nameDiscrim) {
         const namePre = name.substr(0, name.length - 5);
-        const member = guild.members.find(m => m.user.username === namePre && m.user.discriminator === nameDiscrim);
+        const member = guild.members.cache.find(m => m.user.username === namePre && m.user.discriminator === nameDiscrim);
         if (member) return member;
     }
 
@@ -417,11 +417,11 @@ export const getMemberByName = (name, guild) => {
     let strongest = null;
 
     if (str2Lower == 'vaeb') {
-        const selfMember = members.get(vaebId);
+        const selfMember = members.cache.get(vaebId);
         if (selfMember) return selfMember;
     }
 
-    members.forEach((member) => {
+    members.cache.forEach((member) => {
         let realName = member.nickname != null ? member.nickname : getName(member);
         if (removeUnicode) realName = realName.replace(/[^\x00-\x7F]/g, '');
         realName = realName.trim();
@@ -494,7 +494,7 @@ export const getMemberByMixed = (name, guild) => {
 export const staffPerms = ['ADMINISTRATOR', 'KICK_MEMBERS', 'BAN_MEMBERS', 'MANAGE_CHANNELS', 'MANAGE_GUILD', 'MANAGE_MESSAGES'];
 
 export const isStaff = member =>
-    member.hasPermission(staffPerms, false, true, true) || member.roles.some(({ name }) => /^(?:staff|admin|(?:head\s+?)?mod)/i.test(name));
+    member.hasPermission(staffPerms, false, true, true) || member.roles.cache.some(({ name }) => /^(?:staff|admin|(?:head\s+?)?mod)/i.test(name));
 
 export const isAdmin = member => member.hasPermission('ADMINISTRATOR');
 
@@ -695,7 +695,7 @@ export const roleRank = (guild, userResolvable) => {
     let member = userResolvable;
 
     if (typeof userResolvable !== 'object') {
-        member = guild.members.get(userResolvable);
+        member = guild.members.cache.get(userResolvable);
     }
 
     if (member) {

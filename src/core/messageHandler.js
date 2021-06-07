@@ -150,13 +150,13 @@ const setKingTimer = async (firstCall = false) => {
         dataMembersAllOld = Object.entries(dataMembersAllOld);
 
         dataMembersAllOld.forEach(async ([guildId, memberVals]) => {
-            const guild = client.guilds.get(guildId);
+            const guild = client.guilds.cache.get(guildId);
 
             console.log('Calculating XP king for', guildId);
 
             if (!guild) return;
 
-            const kingRole = guild.roles.find(r => r.name.startsWith('XP King'));
+            const kingRole = guild.roles.cache.find(r => r.name.startsWith('XP King'));
 
             if (!kingRole) return;
 
@@ -170,7 +170,7 @@ const setKingTimer = async (firstCall = false) => {
 
             const king = kings[0];
 
-            const kingMember = guild.members.get(king[0]);
+            const kingMember = guild.members.cache.get(king[0]);
 
             console.log(`Giving XP King to ${kingMember ? kingMember.user.username : null} in ${guild.name} (${king})`);
 

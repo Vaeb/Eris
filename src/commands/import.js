@@ -5,7 +5,7 @@ import { sendEmbed, print, onError } from '../util';
 import { requiresDev } from '../permissions';
 
 const makeOverwrite = (guild, { type, name, allow, deny }) => ({
-    id: type === 'role' ? guild.roles.find(r => r.name === name).id : name,
+    id: type === 'role' ? guild.roles.cache.find(r => r.name === name).id : name,
     type,
     allow,
     deny,
@@ -41,7 +41,7 @@ export default {
         const guildDataString = await request.get(`https://pastebin.com/raw/${pasteId}`);
         const guildData = JSON.parse(guildDataString);
 
-        guildData.roles.sort(({ position: a }, { position: b }) => b - a);
+        guildData.roles.cache.sort(({ position: a }, { position: b }) => b - a);
         guildData.channels.sort(({ position: a }, { position: b }) => a - b);
 
         // const oldGuild = guild;
@@ -51,7 +51,7 @@ export default {
             guild.channels.forEach((c) => {
                 c.delete().catch(err => console.log('Failed to delete channel', c, err));
             });
-            guild.roles.filter(r => r.name !== '@everyone').forEach((r) => {
+            guild.roles.cache.filter(r => r.name !== '@everyone').forEach((r) => {
                 r.delete().catch(err => console.log('Failed to delete role', r, err));
             });
         }
@@ -63,7 +63,7 @@ export default {
         for (let i = 0; i < guildData.roles.length; i++) {
             const roleData = guildData.roles[i];
 
-            const existingRole = guild.roles.find(role => role.name === roleData.name);
+            const existingRole = guild.roles.cache.find(role => role.name === roleData.name);
 
             if (!existingRole) {
                 try {
@@ -107,7 +107,7 @@ export default {
 
         // await Promise.all(guildData.roles.map(async (roleData) => {
         //     try {
-        //         guild.setRolePosition(guild.roles.find(r => r.name === roleData.name), roleData.position);
+        //         guild.setRolePosition(guild.roles.cache.find(r => r.name === roleData.name), roleData.position);
         //     } catch (err) {
         //         console.log('Failed to set role positions', err, '|', roleData);
         //     }
@@ -129,7 +129,7 @@ export default {
                         channelData.type,
                         channelData.permissionOverwrites
                             .map((overwrite) => {
-                                if (overwrite.type === 'role' && !guild.roles.find(r => r.name === overwrite.name)) {
+                                if (overwrite.type === 'role' && !guild.roles.cache.find(r => r.name === overwrite.name)) {
                                     console.log('Failed to create channel overwrite (missing role):', overwrite.name, '|', channelData);
                                     return undefined;
                                 }

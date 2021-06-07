@@ -6,7 +6,7 @@ export default {
     params: [],
 
     func: ({ guild, channel, speaker }) => {
-        print(channel, guild.members.random(1));
+        print(channel, guild.members.cache.random(1));
 
         return undefined;
     },

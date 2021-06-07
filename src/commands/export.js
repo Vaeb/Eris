@@ -12,10 +12,10 @@ const parsePermissionOverwrite = (guild, overwrite) =>
                 generate: (type, typeId) =>
                     // eslint-disable-next-line no-nested-ternary
                     (type === 'role'
-                        ? !guild.roles.get(typeId).managed
-                            ? guild.roles.get(typeId).name
+                        ? !guild.roles.cache.get(typeId).managed
+                            ? guild.roles.cache.get(typeId).name
                             : undefined
-                        : guild.members.get(typeId).id),
+                        : guild.members.cache.get(typeId).id),
             },
         ],
     );
@@ -80,7 +80,7 @@ export default {
                 {
                     newProp: 'roles',
                     fromProps: ['roles'],
-                    generate: roles => roles.filter(role => !role.managed).map(role => parseRole(guild, role)),
+                    generate: roles => roles.cache.filter(role => !role.managed).map(role => parseRole(guild, role)),
                 },
                 {
                     newProp: 'channels',
@@ -90,7 +90,7 @@ export default {
             ],
         );
 
-        guildData.roles.sort(({ position: a }, { position: b }) => a - b);
+        guildData.roles.cache.sort(({ position: a }, { position: b }) => a - b);
         guildData.channels.sort(({ position: a }, { position: b }) => a - b);
 
         const guildDataJSON = JSON.stringify(guildData, null, 2);

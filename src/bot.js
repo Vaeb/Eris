@@ -69,7 +69,7 @@ const setupMembers = async () => {
 
         let numSyncedGuilds = 0;
 
-        await Promise.all(client.guilds.map(async (guild) => {
+        await Promise.all(client.guilds.cache.map(async (guild) => {
             // const guildData = fetchProp(dataGuilds, guild.id);
             // guildData.guildName = guild.name;
 
@@ -88,11 +88,13 @@ const setupMembers = async () => {
 
         let numSyncedMembers = 0;
 
-        await Promise.all(client.guilds.map(async (guildOrig) => {
+        await Promise.all(client.guilds.cache.map(async (guild) => {
             try {
-                const guild = await guildOrig.fetchMembers();
+                console.log('Updating', guild.name);
+                const guildMembers = await guild.members.fetch();
+                console.log('Got members', guild.name, guildMembers.size);
 
-                await Promise.all(guild.members.map(async (member) => {
+                await Promise.all(guildMembers.map(async (member) => {
                     const defaultMemberObj = defaultMember(member);
 
                     await db.members.update(
@@ -104,9 +106,11 @@ const setupMembers = async () => {
                     numSyncedMembers++;
                 }));
 
+                console.log('Done', guild.name);
+
                 // const dataMembers = fetchProp(dataMembersAll, guild.id);
 
-                // const newMembers = guild.members.filter(member => !dataMembers[member.id]).map(defaultMember);
+                // const newMembers = guild.members.cache.filter(member => !dataMembers[member.id]).map(defaultMember);
 
                 // if (newMembers.length > 0) {
                 //     const bulk = db.members.initializeUnorderedBulkOp();
@@ -123,7 +127,7 @@ const setupMembers = async () => {
                 //     }
                 // }
             } catch (err) {
-                onError(err, `InitFetchMembers_${guildOrig.name}`);
+                onError(err, `InitFetchMembers_${guild.name}`);
             }
         }));
 

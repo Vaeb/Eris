@@ -47,11 +47,11 @@ export const guildCreate = client.on('guildCreate', async (guild) => {
     console.log('Synced new guild');
 
     try {
-        guild = await guild.fetchMembers();
+        const guildMembers = await guild.members.fetch();
 
         const dataMembers = fetchProp(dataMembersAll, guild.id);
 
-        const newMembers = guild.members.filter(member => !dataMembers[member.id]).map(defaultMember);
+        const newMembers = guildMembers.filter(member => !dataMembers[member.id]).map(defaultMember);
 
         if (newMembers.length > 0) {
             const bulk = db.members.initializeUnorderedBulkOp();
